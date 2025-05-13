@@ -4,7 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
-import { Activity } from "lucide-react"
+import { Suspense } from "react"
 const inter = Inter({ subsets: ["latin", "cyrillic"] })
 
 export const metadata: Metadata = {
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   description: "Платформа для анализа встреч",
   icons: "/favicon.png",
 }
+
 
 export default function RootLayout({
   children,
@@ -22,9 +23,14 @@ export default function RootLayout({
     <html lang="ru" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <Suspense fallback={null}>
+              {children}
+            </Suspense>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
   )
+
 }
