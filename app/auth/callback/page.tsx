@@ -39,7 +39,7 @@ export default function GoogleCallbackPage() {
         localStorage.setItem("dapter_user", JSON.stringify(data.user))
 
         // Надежный редирект
-        window.location.href = "/dashboard"
+        window.location.href = "/meetings"
       } catch (err: any) {
         console.error("Ошибка авторизации:", err)
         setErrorMsg("Не удалось авторизоваться. Попробуйте снова.")

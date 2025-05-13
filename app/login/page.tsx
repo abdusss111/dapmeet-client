@@ -12,16 +12,15 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
       <Card className="mx-4 w-full max-w-md">
         <CardHeader className="space-y-1 flex flex-col items-center">
-          <div className="mb-4 w-32 h-32 relative">
+          <div className="mb-4 w-full h-32 relative">
             <div className="flex h-full w-full items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-16 w-16">
-                <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                <path d="M2 17l10 5 10-5" />
-                <path d="M2 12l10 5 10-5" />
-              </svg>
+              <img
+                src="/logo.png"
+                alt="Dapmeet.AI Logo"
+              />
             </div>
           </div>
-          <CardTitle className="text-center text-2xl font-bold">Добро пожаловать в Dapter.AI</CardTitle>
+          <CardTitle className="text-center text-2xl font-bold">Добро пожаловать!</CardTitle>
           <CardDescription className="text-center">Войдите, чтобы получить доступ к аналитике встреч</CardDescription>
         </CardHeader>
 

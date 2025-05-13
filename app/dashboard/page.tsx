@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import DashboardLayout from "@/components/dashboard-layout"
 import MeetingsList from "@/components/meetings-list"
-import MeetingFilters from "@/components/meeting-filters"
+// import MeetingFilters from "@/components/meeting-filters"
 import SummaryCard from "@/components/summary-card"
 
 export default function DashboardPage() {
@@ -24,7 +24,7 @@ export default function DashboardPage() {
               <TabsTrigger value="recent">Недавние</TabsTrigger>
               <TabsTrigger value="upcoming">Предстоящие</TabsTrigger>
             </TabsList>
-            <MeetingFilters />
+            {/* <MeetingFilters /> */}
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import DashboardLayout from "@/components/dashboard-layout"
-import MeetingFilters from "@/components/meeting-filters"
+// import MeetingFilters from "@/components/meeting-filters"
 import { CalendarView } from "@/components/calendar-view"
 import { MeetingCard } from "@/components/meeting-card" // 👈 create this if not yet
 
@@ -19,7 +19,7 @@ import { MeetingCard } from "@/components/meeting-card" // 👈 create this if n
 type Meeting = {
   id: string
   title: string
-  date: string
+  created_at: Date
   participants?: string[]
   transcript?: string
 }
@@ -67,7 +67,7 @@ export default function MeetingsPage() {
               <TabsTrigger value="list">Список</TabsTrigger>
               {/* <TabsTrigger value="calendar">Календарь</TabsTrigger> */}
             </TabsList>
-            <MeetingFilters />
+            {/* <MeetingFilters /> */}
           </div>
 
           <TabsContent value="list" className="space-y-4">

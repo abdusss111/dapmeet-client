@@ -47,25 +47,15 @@ export function Sidebar({ open }: SidebarProps) {
         open ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-16",
       )}
     >
-      <div className="flex h-14 items-center border-b px-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-          </svg>
-          {open && <span>Dapter.AI</span>}
+      <div className="flex h-14 items-center border-b px-4 pb-4 mt-4">
+        <Link href="/meetings" className="flex items-center gap-2 font-semibold">
+          <img
+            src="/logo.png"
+            alt="Dapmeet.AI Logo"
+            className="h-full w-full"
+            ></img>
         </Link>
-      </div>
+      </div>  
       <nav className="flex-1 overflow-auto p-2">
         <ul className="flex flex-col gap-1">
           {routes.map((route) => (
@@ -88,7 +78,7 @@ export function Sidebar({ open }: SidebarProps) {
       </nav>
       <div className="border-t p-4">
         <div className="flex flex-col gap-2">
-          {open && <div className="text-xs text-muted-foreground">Версия 1.0.0</div>}
+          {/* {open && <div className="text-xs text-muted-foreground">Версия 1.0.0</div>} */}
         </div>
       </div>
     </aside>

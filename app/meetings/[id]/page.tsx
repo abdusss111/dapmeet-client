@@ -3,19 +3,16 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Download, ArrowLeft } from "lucide-react"
+import { ArrowLeft, Calendar } from "lucide-react"
 import Link from "next/link"
 import DashboardLayout from "@/components/dashboard-layout"
-import { Badge } from "@/components/ui/badge"
-import { formatTime } from "@/lib/utils"
 import { AIChat } from "@/components/ai-chat"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type MeetingMeta = {
   id: string
   title: string
-  date: string
+  created_at: Date
   participants?: string[]
   topics?: string[]
   highlights?: { t: number; text: string }[]
@@ -107,13 +104,16 @@ export default function MeetingDetailPage() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Link href="/dashboard" className="mb-2 inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
+            <Link href="/meetings" className="mb-2 inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4" />
               Назад к панели управления
             </Link>
             <h1 className="text-3xl font-bold tracking-tight">{meeting.title}</h1>
             <p className="text-muted-foreground">
-              {new Date(meeting.date).toLocaleDateString()} • {meeting.participants?.length ?? 0} участников
+            {new Date(meeting.created_at).toLocaleDateString()}• 
+            <Calendar className="h-4 w-4 inline mr-1" />
+
+            {/* {meeting.participants?.length ?? 0} участников */}
             </p>
           </div>
           {/* <div className="flex gap-2 self-end sm:self-auto">
@@ -131,7 +131,7 @@ export default function MeetingDetailPage() {
         <Tabs defaultValue="ai" className="space-y-4">
           <TabsList>
             {/* <TabsTrigger value="content">Содержание</TabsTrigger> */}
-            <TabsTrigger value="ai">ИИ-ассистент</TabsTrigger>
+            <TabsTrigger value="ai">ИИ</TabsTrigger>
           </TabsList>
 
           

@@ -4,13 +4,13 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
-
+import { Activity } from "lucide-react"
 const inter = Inter({ subsets: ["latin", "cyrillic"] })
 
 export const metadata: Metadata = {
-  title: "Dapter.AI",
+  title: "Dapmeet.AI",
   description: "Платформа для анализа встреч",
-    generator: 'v0.dev'
+  icons: "/favicon.png",
 }
 
 export default function RootLayout({
