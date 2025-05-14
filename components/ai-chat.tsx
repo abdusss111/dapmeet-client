@@ -1,7 +1,7 @@
 "use client"
 
-import { Copy, Sparkle } from "lucide-react"
-import { useState } from "react"
+import { Copy, Sparkle, Check } from "lucide-react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -20,7 +20,7 @@ interface AIChatProps {
   transcript: string
 }
 
-export function AIChat({ meetingTitle, transcript }: AIChatProps) {
+export function AIChat({ meetingId, meetingTitle, transcript }: AIChatProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -30,6 +30,31 @@ export function AIChat({ meetingTitle, transcript }: AIChatProps) {
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
+
+  useEffect(() => {
+  const fetchHistory = async () => {
+    try {
+      const token = localStorage.getItem("APP_JWT")
+      const res = await fetch(`https://api.dapmeet.kz/api/chat/history?meeting_id=${meetingId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (!res.ok) throw new Error()
+      const history = await res.json()
+      if (Array.isArray(history) && history.length > 0) {
+        setMessages(history)
+      }
+    } catch {
+      console.warn("Не удалось загрузить историю чата")
+    }
+  }
+
+  fetchHistory()
+}, [meetingId])
+
+ 
 
   const quickPrompts = [
     { label: "Краткое резюме", emoji: "✨", 
@@ -105,33 +130,47 @@ export function AIChat({ meetingTitle, transcript }: AIChatProps) {
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: visible, // 👈 видно в интерфейсе
+      content: visible,
     }
   
-    setMessages((prev) => [...prev, userMessage])
+    const updated = [...messages, userMessage]
+    setMessages(updated)
     setInput("")
     setIsLoading(true)
   
     try {
       const context = `Встреча: ${meetingTitle}\nТранскрипт:\n${transcript}`
-      const res = await fetch("/api/chat", {
+    
+        const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: actualPrompt, // 👈 используется только в запросе
-          context,
-        }),
+        headers: {
+  	"Content-Type": "application/json"	
+	},
+        body: JSON.stringify({ prompt: actualPrompt, context }),
       })
+  
       const data = await res.json()
   
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          role: "assistant",
-          content: data.text,
-        },
-      ])
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: data.text,
+      }
+  
+      const newHistory = [...updated, assistantMessage]
+      setMessages(newHistory)
+  
+      // 👇 Save chat history to backend
+      const token = localStorage.getItem("APP_JWT")
+      await fetch("https://api.dapmeet.kz/api/chat/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json",
+Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          meeting_id: meetingId,
+          history: newHistory,
+        }),
+      })
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -145,6 +184,7 @@ export function AIChat({ meetingTitle, transcript }: AIChatProps) {
       setIsLoading(false)
     }
   }
+  
   
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -192,44 +232,68 @@ export function AIChat({ meetingTitle, transcript }: AIChatProps) {
       {/* Сообщения */}
       <CardContent className="pt-2 space-y-2">
         <div className="min-h-[60px] max-h-[400px] overflow-y-auto space-y-2 pr-1">
-          {messages.map((m) => (
-            <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className="flex items-start gap-2 max-w-[80%]">
-                {m.role === "assistant" && (
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback className="bg-white text-blue text-xs"><Sparkles></Sparkles></AvatarFallback>
-                  </Avatar>
-                )}
-                <div className="relative group">
-                <div
-  className={`rounded-lg px-3 py-1 text-sm ${m.role === "user" ? "bg-primary text-white" : "bg-muted"}`}
-  dangerouslySetInnerHTML={{
-    __html: m.role === "assistant" ? formatAIContent(m.content) : m.content,
-  }}
-/>
-
-
-  {m.role === "assistant" && (
-    <button
-      onClick={() => navigator.clipboard.writeText(m.content)}
-      className="absolute right-130 opacity-0 group-hover:opacity-100 transition-opacity"
-      title="Скопировать"
-    >
+        {messages.map((m) => (
+  <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+    <div className="flex items-start gap-2 max-w-[80%]">
+      {m.role === "assistant" && (
+        <Avatar className="h-6 w-6">
+          <AvatarFallback className="bg-white text-blue text-xs">
+            <Sparkles />
+          </AvatarFallback>
+        </Avatar>
+      )}
+      <div className="relative group">
+        <div
+          className={`rounded-lg px-3 py-1 text-sm ${m.role === "user" ? "bg-primary text-white" : "bg-muted"}`}
+          dangerouslySetInnerHTML={{
+            __html: m.role === "assistant" ? formatAIContent(m.content) : m.content,
+          }}
+        />
+        {m.role === "assistant" && (
+  <button
+    onClick={() => {
+      navigator.clipboard.writeText(m.content)
+      setCopiedMessageId(m.id)
+      setTimeout(() => setCopiedMessageId(null), 1500)
+    }}
+    className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity"
+    title="Скопировать"
+  >
+    {copiedMessageId === m.id ? (
+      <Check className="w-6 h-6 text-green-500" />
+    ) : (
       <Copy className="w-6 h-6 text-muted-foreground hover:text-foreground" />
-    </button>
-  )}
-</div>
+    )}
+  </button>
+)}
 
-                {m.role === "user" && (
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback>
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
-            </div>
-          ))}
+      </div>
+      {m.role === "user" && (
+        <Avatar className="h-6 w-6">
+          <AvatarFallback>
+            <User className="h-4 w-4" />
+          </AvatarFallback>
+        </Avatar>
+      )}
+    </div>
+  </div>
+))}
+
+{isLoading && (
+  <div className="flex justify-start">
+    <div className="flex items-center gap-2 max-w-[80%]">
+      <Avatar className="h-6 w-6">
+        <AvatarFallback className="bg-white text-blue text-xs">
+          <Sparkle className="animate-spin" />
+        </AvatarFallback>
+      </Avatar>
+      <div className="rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground animate-pulse">
+        Думаю...
+      </div>
+    </div>
+  </div>
+)}
+
         </div>
       </CardContent>
 

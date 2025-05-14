@@ -41,7 +41,7 @@ export default function MeetingDetailPage() {
 
     const fetchMeetingMeta = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/meetings/${id}`, {
+        const res = await fetch(`https://api.dapmeet.kz/api/meetings/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
           },
@@ -67,7 +67,7 @@ export default function MeetingDetailPage() {
     setLoadingTranscript(true)
     const fetchTranscript = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/meetings/${id}`, {
+        const res = await fetch(`https://api.dapmeet.kz/api/meetings/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
           },

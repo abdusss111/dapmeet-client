@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { Suspense } from "react"
+
 const inter = Inter({ subsets: ["latin", "cyrillic"] })
 
 export const metadata: Metadata = {
@@ -13,7 +14,6 @@ export const metadata: Metadata = {
   icons: "/favicon.png",
 }
 
-
 export default function RootLayout({
   children,
 }: {
@@ -21,10 +21,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body className={inter.className}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body className={`${inter.className} bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <Suspense fallback={null}>
+            <Suspense fallback={<div className="text-center p-8">Загрузка...</div>}>
               {children}
             </Suspense>
           </AuthProvider>
@@ -32,5 +35,5 @@ export default function RootLayout({
       </body>
     </html>
   )
-
 }
+

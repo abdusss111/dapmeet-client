@@ -31,7 +31,7 @@ export default function MeetingsPage() {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/meetings/", {
+        const res = await fetch("https://api.dapmeet.kz/api/meetings/", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
           },
