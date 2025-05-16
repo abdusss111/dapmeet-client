@@ -37,6 +37,14 @@ export default function GoogleCallbackPage() {
 
         localStorage.setItem("APP_JWT", data.access_token)
         localStorage.setItem("dapter_user", JSON.stringify(data.user))
+ 	const token = localStorage.getItem("APP_JWT")
+  	    if (token && window.opener) {
+    	    window.opener.postMessage(
+      		{ token },
+      		"chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc"
+    		);
+    window.close(); // безопасно закрываем только если popup
+  }
 
         // Надежный редирект
         window.location.href = "/meetings"

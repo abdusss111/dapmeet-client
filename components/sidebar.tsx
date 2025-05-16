@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, CreditCard } from "lucide-react"
+import { Calendar, Wallet } from "lucide-react"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 export function Sidebar() {
@@ -17,17 +18,24 @@ export function Sidebar() {
     {
       title: "Оплата",
       href: "/payments",
-      icon: CreditCard,
+      icon: Wallet,
     },
   ]
 
   return (
     <div className="flex h-screen flex-col border-r bg-background">
+      {/* ЛОГО */}
       <div className="flex h-16 items-center px-4">
         <Link href="/meetings" className="flex items-center">
+          <Image src="/logo.png" alt="Dapmeet Logo" width={200} height={32} />
         </Link>
       </div>
-      <nav className="flex-1 space-y-1 px-2 py-4">
+
+	<div className="border-b border-border" />
+	<br></br>
+
+      {/* МЕНЮ */}
+      <nav className="flex-1 space-y-1 px-2">
         {routes.map((route) => (
           <Link
             key={route.href}

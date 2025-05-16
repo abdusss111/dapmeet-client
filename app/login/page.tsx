@@ -4,10 +4,20 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/hooks/use-auth"
 import { Separator } from "@/components/ui/separator"
-
+import { useEffect } from "react"
 export default function LoginPage() {
   const { loginWithGoogle } = useAuth()
+  
+  useEffect(() => {
+  const token = localStorage.getItem("APP_JWT");
 
+  if (token && window.opener) {
+    window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc");
+    window.close();
+  }
+}, []);
+
+  
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
       <Card className="mx-4 w-full max-w-md">

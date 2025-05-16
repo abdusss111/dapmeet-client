@@ -1,4 +1,3 @@
-// dashboard-layout.tsx
 "use client"
 
 import type React from "react"
@@ -33,11 +32,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        {/* Logo */}
-        <div className="px-6 py-4 text-xl font-bold">
-          <span className="text-[#2D2D2D]">dap</span>
-          <span className="text-[#6670F0]">meet</span>
-        </div>
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </aside>
 
@@ -47,9 +41,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col md:ml-64">
+      <div className="flex flex-1 flex-col">
         <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="flex-1 overflow-auto p-4 md:p-6 bg-muted">{children}</main>
+
+        <main className="flex-1 overflow-auto p-4 md:p-6 bg-white">
+          <div className="mx-auto w-full max-w-4xl">{children}</div>
+        </main>
       </div>
     </div>
   )
