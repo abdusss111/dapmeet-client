@@ -12,7 +12,7 @@ export default function LoginPage() {
   const token = localStorage.getItem("APP_JWT");
 
   if (token && window.opener) {
-    window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc");
+    window.opener.postMessage({ token }, "https://dapmeet.kz");
     window.close();
   }
 }, []);

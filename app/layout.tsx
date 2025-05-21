@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { Suspense } from "react"
+import Link from "next/link"
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] })
 
@@ -30,6 +31,11 @@ export default function RootLayout({
             <Suspense fallback={<div className="text-center p-8">Загрузка...</div>}>
               {children}
             </Suspense>
+	   <footer className="border-t p-4 text-center text-sm text-muted-foreground">
+            <Link href="/privacy" className="hover:underline">
+              Политика конфиденциальности
+            </Link>
+          </footer>
           </AuthProvider>
         </ThemeProvider>
       </body>

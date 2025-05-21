@@ -12,19 +12,19 @@ export default function Home() {
   useEffect(() => {
     const token = localStorage.getItem("APP_JWT")
     if (token) {
-      router.push("/dashboard")
+      router.push("/meetings")
     }
   }, [router])
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-slate-200 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-slate-100 px-4">
       <div className="mx-auto max-w-2xl text-center space-y-8">
         {/* Logo */}
         <div className="flex justify-center">
           <img
             src="/logo.png"
             alt="Dapmeet.AI Logo"
-            className=" rounded-2xl shadow-md dark:border-slate-400 border-slate-400"
+            className="rounded-2xl shadow-md dark:border-slate-400 border-slate-400"
           />
         </div>
 
@@ -39,13 +39,18 @@ export default function Home() {
         </div>
 
         {/* CTA */}
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-2">
           <Button asChild size="lg" className="gap-2">
             <Link href="/login">
               Начать
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
+
+          {/* Privacy Policy Link */}
+          <Link href="/privacy" className="text-sm hover:underline">
+            Политика конфиденциальности
+          </Link>
         </div>
       </div>
     </div>

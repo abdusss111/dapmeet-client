@@ -50,16 +50,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  useEffect(() => {
-    if (!isLoading) {
-      const isAuthPage = pathname === "/login"
-      if (!user && !isAuthPage && pathname !== "/meetings") {
-        router.push("/login")
-      } else if (user && isAuthPage) {
-        router.push("/dashboard")
-      }
+useEffect(() => {
+  if (!isLoading) {
+    const publicRoutes = ["/login", "/privacy", "/"] // add any more public routes here
+    const isPublicPage = publicRoutes.includes(pathname)
+
+    if (!user && !isPublicPage) {
+      router.push("/")
+    } else if (user && pathname === "/login") {
+      router.push("/meetings")
     }
-  }, [user, isLoading, pathname, router])
+  }
+}, [user, isLoading, pathname, router])
+
 
   const loginWithGoogle = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
