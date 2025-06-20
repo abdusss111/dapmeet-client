@@ -42,7 +42,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-2">
           <Button asChild size="lg" className="gap-2">
             <Link href="/login">
-              Начать!
+              Начать
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>``
