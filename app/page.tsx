@@ -31,7 +31,7 @@ export default function Home() {
         {/* Title */}
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl mb-2">
-            Ваша цифровая dapter для записей онлайн встреч!
+             Ваша цифровая dapter для записей онлайн встреч!
           </h1>
           <p className="text-lg text-muted-foreground">
             Анализируйте и извлекайте ценные идеи из ваших онлайн-встреч
