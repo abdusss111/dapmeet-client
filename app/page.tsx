@@ -45,12 +45,7 @@ export default function Home() {
               Начать!
               <ArrowRight className="h-4 w-4" />
             </Link>
-          </Button>
-
-          {/* Privacy Policy Link */}
-          <Link href="/privacy" className="text-sm hover:underline">
-            Политика конфиденциальности
-          </Link>
+          </Button>``
         </div>
       </div>
     </div>
