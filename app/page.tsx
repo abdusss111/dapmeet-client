@@ -22,11 +22,12 @@ export default function Home() {
         {/* Logo */}
         <div className="flex justify-center">
           <img
-            src="/logo.png"
+            src="/dap.svg"
             alt="Dapmeet.AI Logo"
-            className="rounded-2xl shadow-md dark:border-slate-400 border-slate-400"
+            className="h-20 w-auto rounded-2xl shadow-md border border-slate-400 dark:border-slate-400 object-contain"
           />
         </div>
+
 
         {/* Title */}
         <div>
