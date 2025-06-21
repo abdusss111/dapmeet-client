@@ -20,26 +20,32 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
       <Card className="mx-4 w-full max-w-md">
-        <CardHeader className="space-y-1 flex flex-col items-center">
-        <div className="mb-4 w-full h-64 relative">
+      <CardHeader className="space-y-1 flex flex-col items-center">
+        {/* mb-2 вместо mb-4, и w-3/4 для ширины лого */}
+        <div className="mb-2 w-full h-64 relative">
           <div className="flex h-full w-full items-center justify-center">
             <object
               data="/dap.svg"
               type="image/svg+xml"
-              className="h-full w-auto object-contain"
+              className="h-full w-3/4 object-contain"
             >
-              {/* fallback, если object не загрузился */}
               <img
                 src="/dap.svg"
                 alt="Dapmeet.AI Logo"
-                className="h-full w-auto object-contain"
+                className="h-full w-3/4 object-contain"
               />
             </object>
           </div>
         </div>
-          <CardTitle className="text-center text-2xl font-bold">Добро пожаловать!</CardTitle>
-          <CardDescription className="text-center">Войдите, чтобы получить доступ к аналитике встреч</CardDescription>
-        </CardHeader>
+
+        <CardTitle className="text-center text-2xl font-bold">
+          Добро пожаловать!
+        </CardTitle>
+        <CardDescription className="text-center">
+          Войдите, чтобы получить доступ к аналитике встреч
+        </CardDescription>
+      </CardHeader>
+
 
         <CardContent className="flex flex-col gap-4">
           <Button variant="outline" className="w-full flex items-center gap-2" onClick={loginWithGoogle}>
