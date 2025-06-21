@@ -31,7 +31,7 @@ export default function LoginPage() {
       <Card className="mx-4 w-full max-w-md">
       <CardHeader className="space-y-1 flex flex-col items-center">
         {/* mb-2 вместо mb-4, и w-3/4 для ширины лого */}
-        <div className="mb-1 w-full h-48 relative">
+        <div className="mb-1 w-full h-72 relative">
           <div className="flex h-full w-full items-center justify-center">
             <object
               data="/dap.svg"
