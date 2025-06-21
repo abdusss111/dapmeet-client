@@ -21,7 +21,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
       <Card className="mx-4 w-full max-w-md">
         <CardHeader className="space-y-1 flex flex-col items-center">
-        <div className="mb-4 w-full h-72 relative">
+        <div className="mb-4 w-full h-64 relative">
           <div className="flex h-full w-full items-center justify-center">
             <object
               data="/dap.svg"
