@@ -74,7 +74,7 @@ export default function MeetingDetailPage() {
         })
         if (!res.ok) throw new Error("Failed to fetch transcript")
         const data = await res.json()
-        setTranscript(formatTranscript(data.transcript))
+        setTranscript(formatTranscript(data.segments.map((s: any) => s.text).join("\n")))
       } catch (err) {
         console.error(err)
       } finally {
