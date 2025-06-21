@@ -25,13 +25,13 @@ export default function Home() {
           <object
             data="/dap.svg"
             type="image/svg+xml"
-            className="h-20 w-auto rounded-2xl shadow-md border border-slate-400 dark:border-slate-400"
+            className="h-20 w-300 rounded-2xl shadow-md border border-slate-400 dark:border-slate-400"
           >
             {/* fallback на случай, если object не загрузится */}
             <img
               src="/dap.svg"
               alt="Dapmeet.AI Logo"
-              className="h-20 w-auto object-contain"
+              className="h-20 w-300 object-contain"
             />
           </object>
         </div>
