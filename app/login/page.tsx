@@ -24,7 +24,7 @@ export default function LoginPage() {
           <div className="mb-4 w-full h-32 relative">
             <div className="flex h-full w-full items-center justify-center">
               <img
-                src="/dap.svg"
+                src="/logo.png"
                 alt="Dapmeet.AI Logo"
               />
             </div>
