@@ -1,6 +1,15 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+
+// Extend JSX.IntrinsicElements to include the 'object' element
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      object: React.DetailedHTMLProps<React.ObjectHTMLAttributes<HTMLObjectElement>, HTMLObjectElement>;
+    }
+  }
+}
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/hooks/use-auth"
 import { Separator } from "@/components/ui/separator"
@@ -22,17 +31,17 @@ export default function LoginPage() {
       <Card className="mx-4 w-full max-w-md">
       <CardHeader className="space-y-1 flex flex-col items-center">
         {/* mb-2 вместо mb-4, и w-3/4 для ширины лого */}
-        <div className="mb-1 w-full h-64 relative">
-          <div className="flex h-64 w-2/3 items-center justify-center">
+        <div className="mb-1 w-full h-48 relative">
+          <div className="flex h-full w-full items-center justify-center">
             <object
               data="/dap.svg"
               type="image/svg+xml"
-              className="h-full w-3/4 object-contain"
+              className="h-full w-full object-contain"
             >
               <img
                 src="/dap.svg"
                 alt="Dapmeet.AI Logo"
-                className="h-full w-3/4 object-contain"
+                className="h-full w-full object-contain"
               />
             </object>
           </div>
