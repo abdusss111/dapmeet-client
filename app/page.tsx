@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import Image from 'next/image';
 
 export default function Home() {
   const router = useRouter()
@@ -21,10 +22,13 @@ export default function Home() {
       <div className="mx-auto max-w-2xl text-center space-y-8">
         {/* Logo */}
         <div className="flex justify-center">
-          <img
+          <Image
             src="/dap.svg"
             alt="Dapmeet.AI Logo"
-            className="h-20 w-auto rounded-2xl shadow-md border border-slate-400 dark:border-slate-400 object-contain"
+            width={160}
+            height={80}
+            className="rounded-2xl shadow-md border border-slate-400 dark:border-slate-400 object-contain"
+            priority
           />
         </div>
 
