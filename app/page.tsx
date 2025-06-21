@@ -45,7 +45,7 @@ export default function Home() {
               Начать
               <ArrowRight className="h-4 w-4" />
             </Link>
-          </Button>``
+          </Button>
         </div>
       </div>
     </div>
