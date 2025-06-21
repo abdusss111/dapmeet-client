@@ -22,15 +22,20 @@ export default function Home() {
       <div className="mx-auto max-w-2xl text-center space-y-8">
         {/* Logo */}
         <div className="flex justify-center">
-          <Image
-            src="/dap.svg"
-            alt="Dapmeet.AI Logo"
-            width={160}
-            height={80}
-            className="rounded-2xl shadow-md border border-slate-400 dark:border-slate-400 object-contain"
-            priority
-          />
+          <object
+            data="/dap.svg"
+            type="image/svg+xml"
+            className="h-20 w-auto rounded-2xl shadow-md border border-slate-400 dark:border-slate-400"
+          >
+            {/* fallback на случай, если object не загрузится */}
+            <img
+              src="/dap.svg"
+              alt="Dapmeet.AI Logo"
+              className="h-20 w-auto object-contain"
+            />
+          </object>
         </div>
+
 
 
         {/* Title */}
