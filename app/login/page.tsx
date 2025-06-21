@@ -21,14 +21,22 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
       <Card className="mx-4 w-full max-w-md">
         <CardHeader className="space-y-1 flex flex-col items-center">
-          <div className="mb-4 w-full h-32 relative">
-            <div className="flex h-full w-full items-center justify-center">
+        <div className="mb-4 w-full h-32 relative">
+          <div className="flex h-full w-full items-center justify-center">
+            <object
+              data="/dap.svg"
+              type="image/svg+xml"
+              className="h-full w-auto object-contain"
+            >
+              {/* fallback, если object не загрузился */}
               <img
-                src="/logo.png"
+                src="/dap.svg"
                 alt="Dapmeet.AI Logo"
+                className="h-full w-auto object-contain"
               />
-            </div>
+            </object>
           </div>
+        </div>
           <CardTitle className="text-center text-2xl font-bold">Добро пожаловать!</CardTitle>
           <CardDescription className="text-center">Войдите, чтобы получить доступ к аналитике встреч</CardDescription>
         </CardHeader>
