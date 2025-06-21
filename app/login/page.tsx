@@ -16,27 +16,19 @@ export default function LoginPage() {
     window.close();
   }
 }, []);
-
   
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
       <Card className="mx-4 w-full max-w-md">
         <CardHeader className="space-y-1 flex flex-col items-center">
           <div className="mb-4 w-full h-32 relative">
-            <div className="flex justify-center">
-            <object
-              data="/dap.svg"
-              type="image/svg+xml"
-              className="h-auto w-auto rounded-2xl shadow-md border border-slate-400 dark:border-slate-400"
-            >
-              {/* fallback на случай, если object не загрузится */}
+            <div className="flex h-full w-full items-center justify-center">
               <img
                 src="/dap.svg"
+                className="h-auto w-auto rounded-2xl shadow-md border border-slate-400 dark:border-slate-400"
                 alt="Dapmeet.AI Logo"
-                className="h-auto w-auto object-contain"
               />
-            </object>
-          </div>
+            </div>
           </div>
           <CardTitle className="text-center text-2xl font-bold">Добро пожаловать!</CardTitle>
           <CardDescription className="text-center">Войдите, чтобы получить доступ к аналитике встреч</CardDescription>
