@@ -12,7 +12,10 @@ const inter = Inter({ subsets: ["latin", "cyrillic"] })
 export const metadata: Metadata = {
   title: "Dapmeet.AI",
   description: "Платформа для анализа встреч",
-  icons: "/favicon.png",
+  icons: {
+    icon: "/favicon.png",        // → <link rel="icon" href="/favicon.png" />
+    shortcut: "/favicon.png",    // → <link rel="shortcut icon" href="/favicon.png" />
+  },
 }
 
 export default function RootLayout({
