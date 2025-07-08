@@ -10,7 +10,7 @@ import Link from "next/link"
 const inter = Inter({ subsets: ["latin", "cyrillic"] })
 
 export const metadata: Metadata = {
-  title: "Dapmeet.AI",
+  title: "Dapmeet",
   description: "Платформа для анализа встреч",
   icons: {
     icon: "/favicon.png",        // → <link rel="icon" href="/favicon.png" />
