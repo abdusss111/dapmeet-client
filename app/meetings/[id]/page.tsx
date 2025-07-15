@@ -9,10 +9,23 @@ import DashboardLayout from "@/components/dashboard-layout"
 import { AIChat } from "@/components/ai-chat"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+type MeetingSegment = {
+  id: number
+  meeting_id: string
+  google_meet_user_id: string
+  username: string
+  timestamp: string
+  text: string
+  ver: number
+  mess_id: string
+  created_at: string
+}
+
 type MeetingMeta = {
   id: string
   title: string
   created_at: Date
+  segments: MeetingSegment[]
   participants?: string[]
   topics?: string[]
   highlights?: { t: number; text: string }[]
@@ -26,13 +39,24 @@ export default function MeetingDetailPage() {
   const [loadingTranscript, setLoadingTranscript] = useState(false)
   const router = useRouter()
 
-  function formatTranscript(raw: string): string {
-    return raw
-      .replace(/^"|"$/g, "")
-      .replace(/\\n/g, "\n")
-      .replace(/\s*\n\s*/g, "\n")
-      .replace(/([А-ЯЁ][а-яё]+):/g, "<strong>$1:</strong>")
-      .trim()
+  function formatTimestamp(timestamp: string): string {
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+  }
+
+  function formatTranscript(segments: MeetingSegment[]): string {
+    return segments
+      .map(segment => {
+        const timecode = formatTimestamp(segment.timestamp)
+        const speakerName = segment.username
+        const text = segment.text
+        return `${timecode}, ${speakerName}: ${text}`
+      })
+      .join('\n')
   }
 
   // Fetch meeting metadata
@@ -74,7 +98,7 @@ export default function MeetingDetailPage() {
         })
         if (!res.ok) throw new Error("Failed to fetch transcript")
         const data = await res.json()
-        setTranscript(formatTranscript(data.segments.map((s: any) => s.text).join("\n")))
+        setTranscript(formatTranscript(data.segments))
       } catch (err) {
         console.error(err)
       } finally {
@@ -158,10 +182,9 @@ export default function MeetingDetailPage() {
         {loadingTranscript ? (
           <p>Загрузка транскрипта...</p>
         ) : (
-          <div
-            className="space-y-4 whitespace-pre-line"
-            dangerouslySetInnerHTML={{ __html: transcript }}
-          />
+          <div className="space-y-4 whitespace-pre-line">
+            {transcript}
+          </div>
         )}
       </CardContent>
     </Card>
