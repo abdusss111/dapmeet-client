@@ -1,55 +1,36 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { Home, Calendar, Settings, Users, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Wallet } from "lucide-react"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
 
 export function Sidebar() {
   const pathname = usePathname()
 
-  const routes = [
-    {
-      title: "Встречи",
-      href: "/meetings",
-      icon: Calendar,
-    },
-    {
-      title: "Оплата",
-      href: "/payments",
-      icon: Wallet,
-    },
+  const navigation = [
+    { name: "Панель управления", href: "/dashboard", icon: Home },
+    { name: "Встречи", href: "/meetings", icon: MessageSquare },
+    { name: "Календарь", href: "/calendar", icon: Calendar },
+    { name: "Участники", href: "/participants", icon: Users },
+    { name: "Настройки", href: "/settings", icon: Settings },
   ]
 
   return (
-    <div className="flex h-screen flex-col border-r bg-background">
-      {/* ЛОГО */}
-      <div className="flex h-16 items-center px-4">
-        <Link href="/meetings" className="flex items-center">
-          <Image src="/logo.png" alt="Dapmeet Logo" width={200} height={32} />
-        </Link>
-      </div>
-
-	<div className="border-b border-border" />
-	<br></br>
-
-      {/* МЕНЮ */}
-      <nav className="flex-1 space-y-1 px-2">
-        {routes.map((route) => (
-          <Link
-            key={route.href}
-            href={route.href}
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              pathname === route.href ? "bg-muted" : "hover:bg-muted hover:text-primary",
-            )}
-          >
-            <route.icon className="h-5 w-5 text-muted-foreground" />
-            {route.title}
-          </Link>
-        ))}
+    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
+      <nav className="p-4 space-y-2">
+        {navigation.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link key={item.name} href={item.href}>
+              <Button variant={isActive ? "default" : "ghost"} className="w-full justify-start gap-2">
+                <item.icon className="w-4 h-4" />
+                {item.name}
+              </Button>
+            </Link>
+          )
+        })}
       </nav>
-    </div>
+    </aside>
   )
 }
