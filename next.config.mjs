@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['sharp']
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -10,9 +7,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['localhost', 'api.dapmeet.kz'],
+    domains: ["lh3.googleusercontent.com"],
     unoptimized: true,
-  }
+  },
+  // Remove the experimental.serverActions as it's no longer needed in Next.js 15
 }
 
 export default nextConfig

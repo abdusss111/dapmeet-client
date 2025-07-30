@@ -1,72 +1,55 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Loader2 } from 'lucide-react'
+import { useEffect, useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
+import { Loader2 } from "lucide-react"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.dapmeet.kz"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
-function AuthCallbackContent() {
-  const router = useRouter()
+function GoogleCallbackContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [errorMsg, setErrorMsg] = useState("")
 
   useEffect(() => {
     const code = searchParams.get("code")
-    const error = searchParams.get("error")
-
-    if (error) {
-      console.error("OAuth error:", error)
-      setStatus("error")
-      setErrorMsg("Ошибка авторизации Google")
-      return
-    }
 
     if (!code) {
       setStatus("error")
-      setErrorMsg("Код авторизации не получен")
+      setErrorMsg("Код авторизации не получен из URL")
       return
     }
 
     const authenticate = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/auth/google`, {
+        const res = await fetch(`${API_URL}/auth/google`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code }),
         })
 
-        if (!response.ok) {
-          const errorText = await response.text()
-          throw new Error(errorText || "Authentication failed")
+        if (!res.ok) {
+          const text = await res.text()
+          throw new Error(text)
         }
 
-        const data = await response.json()
+        const data = await res.json()
 
-        // Store the JWT token and user data
         localStorage.setItem("APP_JWT", data.access_token)
         localStorage.setItem("dapter_user", JSON.stringify(data.user))
 
-        // Handle Chrome extension communication if needed
         const token = localStorage.getItem("APP_JWT")
         if (token && window.opener) {
-          window.opener.postMessage(
-            { token },
-            "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc"
-          )
-          window.close()
+          window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
+          window.close() // безопасно закрываем только если popup
         }
 
-        setStatus("success")
-        // Redirect to meetings page
+        // Надежный редирект
         window.location.href = "/meetings"
       } catch (err: any) {
-        console.error("Authentication error:", err)
-        setStatus("error")
+        console.error("Ошибка авторизации:", err)
         setErrorMsg("Не удалось авторизоваться. Попробуйте снова.")
+        setStatus("error")
       }
     }
 
@@ -76,8 +59,8 @@ function AuthCallbackContent() {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
-        <Loader2 className="animate-spin w-8 h-8 text-blue-600" />
-        <p className="text-gray-600">Авторизация через Google...</p>
+        <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
+        <p className="text-gray-500">Авторизация через Google...</p>
       </div>
     )
   }
@@ -88,7 +71,7 @@ function AuthCallbackContent() {
         <p className="text-red-500 font-semibold">{errorMsg}</p>
         <button
           onClick={() => (window.location.href = "/login")}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800"
         >
           Вернуться на страницу входа
         </button>
@@ -99,17 +82,17 @@ function AuthCallbackContent() {
   return null
 }
 
-export default function AuthCallbackPage() {
+export default function GoogleCallbackPage() {
   return (
     <Suspense
       fallback={
         <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
-          <Loader2 className="animate-spin w-8 h-8 text-blue-600" />
-          <p className="text-gray-600">Загрузка...</p>
+          <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
+          <p className="text-gray-500">Загрузка...</p>
         </div>
       }
     >
-      <AuthCallbackContent />
+      <GoogleCallbackContent />
     </Suspense>
   )
 }
