@@ -1,13 +1,16 @@
 "use client"
 
-import { Suspense, useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useAuth } from "@/hooks/use-auth"
+import { Loader2 } from 'lucide-react'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.dapmeet.kz"
 
 function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { login } = useAuth()
+  const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
+  const [errorMsg, setErrorMsg] = useState("")
 
   useEffect(() => {
     const code = searchParams.get("code")
@@ -15,55 +18,94 @@ function AuthCallbackContent() {
 
     if (error) {
       console.error("OAuth error:", error)
-      router.push("/login?error=oauth_error")
+      setStatus("error")
+      setErrorMsg("Ошибка авторизации Google")
       return
     }
 
-    if (code) {
-      // Handle the OAuth code
-      const handleOAuthCallback = async () => {
-        try {
-          // Exchange code for tokens and user info
-          const response = await fetch(`https://api.dapmeet.kz/api/auth/google/callback?code=${code}`)
-          const data = await response.json()
-
-          if (data.user) {
-            login(data.user)
-            router.push("/dashboard")
-          } else {
-            router.push("/login?error=auth_failed")
-          }
-        } catch (error) {
-          console.error("Auth callback error:", error)
-          router.push("/login?error=auth_failed")
-        }
-      }
-
-      handleOAuthCallback()
-    } else {
-      router.push("/login")
+    if (!code) {
+      setStatus("error")
+      setErrorMsg("Код авторизации не получен")
+      return
     }
-  }, [searchParams, router, login])
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Авторизация...</p>
+    const authenticate = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/auth/google`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code }),
+        })
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          throw new Error(errorText || "Authentication failed")
+        }
+
+        const data = await response.json()
+
+        // Store the JWT token and user data
+        localStorage.setItem("APP_JWT", data.access_token)
+        localStorage.setItem("dapter_user", JSON.stringify(data.user))
+
+        // Handle Chrome extension communication if needed
+        const token = localStorage.getItem("APP_JWT")
+        if (token && window.opener) {
+          window.opener.postMessage(
+            { token },
+            "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc"
+          )
+          window.close()
+        }
+
+        setStatus("success")
+        // Redirect to meetings page
+        window.location.href = "/meetings"
+      } catch (err: any) {
+        console.error("Authentication error:", err)
+        setStatus("error")
+        setErrorMsg("Не удалось авторизоваться. Попробуйте снова.")
+      }
+    }
+
+    authenticate()
+  }, [searchParams])
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
+        <Loader2 className="animate-spin w-8 h-8 text-blue-600" />
+        <p className="text-gray-600">Авторизация через Google...</p>
       </div>
-    </div>
-  )
+    )
+  }
+
+  if (status === "error") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 space-y-4">
+        <p className="text-red-500 font-semibold">{errorMsg}</p>
+        <button
+          onClick={() => (window.location.href = "/login")}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Вернуться на страницу входа
+        </button>
+      </div>
+    )
+  }
+
+  return null
 }
 
 export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Загрузка...</p>
-          </div>
+        <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
+          <Loader2 className="animate-spin w-8 h-8 text-blue-600" />
+          <p className="text-gray-600">Загрузка...</p>
         </div>
       }
     >

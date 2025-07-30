@@ -1,6 +1,5 @@
-import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter } from 'next/font/google'
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
@@ -9,8 +8,8 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "DapMeet - Умные встречи",
-  description: "Платформа для управления встречами с ИИ-анализом",
+  title: "DapMeet - AI Meeting Assistant",
+  description: "AI-powered meeting transcription and analysis",
     generator: 'v0.dev'
 }
 
@@ -22,7 +21,12 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={inter.className}>
-        <ThemeProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
           <AuthProvider>
             {children}
             <Toaster />

@@ -1,8 +1,8 @@
 export interface User {
   id: string
-  email: string
   name: string
-  image?: string
+  email: string
+  image: string | null
 }
 
 export interface MeetingSegment {
@@ -26,18 +26,9 @@ export interface Meeting {
   created_at: string
 }
 
-export interface MeetingDetail extends Meeting {
-  segments: MeetingSegment[]
-}
-
-export interface MeetingWithSegments extends Meeting {
-  segments: MeetingSegment[]
-}
-
 export interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<void>
+  isLoading: boolean
   loginWithGoogle: () => void
   logout: () => void
-  loading: boolean
 }

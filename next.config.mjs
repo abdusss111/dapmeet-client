@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // Remove the deprecated serverActions option for Next.js 15
+    serverComponentsExternalPackages: ['sharp']
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -10,9 +10,9 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['lh3.googleusercontent.com'],
+    domains: ['localhost', 'api.dapmeet.kz'],
     unoptimized: true,
-  },
+  }
 }
 
 export default nextConfig
