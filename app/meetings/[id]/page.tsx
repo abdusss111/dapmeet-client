@@ -2,195 +2,166 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Calendar } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import DashboardLayout from "@/components/dashboard-layout"
+import { DashboardLayout } from "@/components/dashboard-layout"
+import { MeetingDetails } from "@/components/meeting-details"
 import { AIChat } from "@/components/ai-chat"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { Meeting } from "@/lib/types"
 
-type MeetingSegment = {
-  id: number
-  meeting_id: string
-  google_meet_user_id: string
-  username: string
-  timestamp: string
-  text: string
-  ver: number
-  mess_id: string
-  created_at: string
-}
-
-type MeetingMeta = {
-  id: string
-  title: string
-  created_at: Date
-  segments: MeetingSegment[]
-  participants?: string[]
-  topics?: string[]
-  highlights?: { t: number; text: string }[]
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.dapmeet.kz"
 
 export default function MeetingDetailPage() {
-  const { id } = useParams()
-  const [meeting, setMeeting] = useState<MeetingMeta | null>(null)
-  const [transcript, setTranscript] = useState<string>("")
-  const [loading, setLoading] = useState(true)
-  const [loadingTranscript, setLoadingTranscript] = useState(false)
+  const params = useParams()
   const router = useRouter()
+  const meetingId = params.id as string
+  const [meeting, setMeeting] = useState<Meeting | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  function formatTimestamp(timestamp: string): string {
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString('ru-RU', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    })
-  }
-
-  function formatTranscript(segments: MeetingSegment[]): string {
-    return segments
-      .map(segment => {
-        const timecode = formatTimestamp(segment.timestamp)
-        const speakerName = segment.username
-        const text = segment.text
-        return `${timecode}, ${speakerName}: ${text}`
-      })
-      .join('\n')
-  }
-
-  // Fetch meeting metadata
   useEffect(() => {
-    if (!id || typeof id !== "string") return
-
-    const fetchMeetingMeta = async () => {
+    const fetchMeeting = async () => {
       try {
-        const res = await fetch(`https://api.dapmeet.kz/api/meetings/${id}`, {
+        const token = localStorage.getItem("APP_JWT")
+        if (!token) {
+          setError("Токен авторизации не найден")
+          return
+        }
+
+        const response = await fetch(`${API_URL}/api/meetings/${meetingId}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         })
-        if (!res.ok) throw new Error("Failed to fetch meeting metadata")
-        const data: MeetingMeta = await res.json()
+
+        if (!response.ok) {
+          throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
+        }
+
+        const data = await response.json()
         setMeeting(data)
       } catch (err) {
-        console.error(err)
-        router.push("/dashboard")
+        console.error("Ошибка загрузки встречи:", err)
+        setError(err instanceof Error ? err.message : "Неизвестная ошибка")
       } finally {
         setLoading(false)
       }
     }
 
-    fetchMeetingMeta()
-  }, [id, router])
-
-  // Fetch transcript once metadata is loaded
-  useEffect(() => {
-    if (!id || typeof id !== "string" || !meeting) return
-
-    setLoadingTranscript(true)
-    const fetchTranscript = async () => {
-      try {
-        const res = await fetch(`https://api.dapmeet.kz/api/meetings/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
-          },
-        })
-        if (!res.ok) throw new Error("Failed to fetch transcript")
-        const data = await res.json()
-        setTranscript(formatTranscript(data.segments))
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoadingTranscript(false)
-      }
+    if (meetingId) {
+      fetchMeeting()
     }
+  }, [meetingId])
 
-    fetchTranscript()
-  }, [id, meeting])
+  const formatTranscript = (meeting: Meeting): string => {
+    if (!meeting.segments || meeting.segments.length === 0) return ""
 
-  const getSize = (index: number) => {
-    const sizes = ["text-xs", "text-sm", "text-base", "text-lg", "text-xl"]
-    const maxIndex = Math.min(index, sizes.length - 1)
-    return sizes[sizes.length - 1 - maxIndex]
+    const sortedSegments = [...meeting.segments].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    )
+
+    return sortedSegments
+      .map((segment) => {
+        const time = new Date(segment.timestamp).toLocaleTimeString("ru-RU", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })
+        return `${time}, ${segment.speaker_username}: ${segment.text}`
+      })
+      .join("\n")
   }
 
   if (loading) {
-    return <DashboardLayout>Загрузка...</DashboardLayout>
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Загрузка встречи...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <Link href="/meetings">
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Вернуться к встречам
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   if (!meeting) {
-    return <DashboardLayout>Встреча не найдена.</DashboardLayout>
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-gray-600 mb-4">Встреча не найдена</p>
+            <Link href="/meetings">
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Вернуться к встречам
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <Link href="/meetings" className="mb-2 inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-4 w-4" />
-              Назад к панели управления
-            </Link>
-            <h1 className="text-3xl font-bold tracking-tight">{meeting.title}</h1>
-            <p className="text-muted-foreground">
-            {new Date(meeting.created_at).toLocaleDateString()}• 
-            <Calendar className="h-4 w-4 inline mr-1" />
-
-            {/* {meeting.participants?.length ?? 0} участников */}
-            </p>
-          </div>
-          {/* <div className="flex gap-2 self-end sm:self-auto">
-            <Button variant="outline" size="sm" className="gap-1">
-              <Download className="h-4 w-4" />
-              Скачать транскрипт
+        {/* Navigation */}
+        <div className="flex items-center gap-4">
+          <Link href="/meetings">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Назад к встречам
             </Button>
-            <Button size="sm" className="gap-1">
-              <Download className="h-4 w-4" />
-              Скачать резюме
-            </Button>
-          </div> */}
+          </Link>
         </div>
 
-        <Tabs defaultValue="ai" className="space-y-4">
-          <TabsList>
-            {/* <TabsTrigger value="content">Содержание</TabsTrigger> */}
-            <TabsTrigger value="ai">ИИ</TabsTrigger>
+        {/* Tabs */}
+        <Tabs defaultValue="transcript" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="transcript">Транскрипт</TabsTrigger>
+            <TabsTrigger value="ai">ИИ Анализ</TabsTrigger>
           </TabsList>
 
-          
-          <TabsContent value="ai">
-  <div className="flex flex-col gap-6">
+          <TabsContent value="transcript" className="space-y-6">
+            <MeetingDetails meeting={meeting} />
+          </TabsContent>
 
-
-    {/* Блок: AI Чат */}
-    <div className="w-full">
-      <AIChat
-        meetingId={meeting.id}
-        meetingTitle={meeting.title}
-        transcript={transcript}
-      />
-    </div>
-
-    {/* Блок: Транскрипт */}
-    <Card>
-      <CardHeader>
-        <CardTitle>Транскрипт встречи</CardTitle>
-        <CardDescription>Полный текст встречи</CardDescription>
-      </CardHeader>
-      <CardContent className="max-h-[600px] overflow-y-auto">
-        {loadingTranscript ? (
-          <p>Загрузка транскрипта...</p>
-        ) : (
-          <div className="space-y-4 whitespace-pre-line">
-            {transcript}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  </div>
-</TabsContent>
-
+          <TabsContent value="ai" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <MeetingDetails meeting={meeting} />
+              </div>
+              <div className="lg:sticky lg:top-6">
+                <AIChat
+                  meetingId={meeting.unique_session_id}
+                  meetingTitle={meeting.title}
+                  transcript={formatTranscript(meeting)}
+                />
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </DashboardLayout>
