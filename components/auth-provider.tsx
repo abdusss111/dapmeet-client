@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react"
+import { createContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter, usePathname } from "next/navigation"
 
 export type User = {
@@ -50,22 +44,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [])
 
-useEffect(() => {
-  if (!isLoading) {
-    const publicRoutes = ["/login", "/privacy", "/"] // add any more public routes here
-    const isPublicPage = publicRoutes.includes(pathname)
+  useEffect(() => {
+    if (!isLoading) {
+      const publicRoutes = ["/login", "/privacy", "/"] // add any more public routes here
+      const isPublicPage = publicRoutes.includes(pathname)
 
-    if (!user && !isPublicPage) {
-      router.push("/")
-    } else if (user && pathname === "/login") {
-      router.push("/meetings")
+      if (!user && !isPublicPage) {
+        router.push("/")
+      } else if (user && pathname === "/login") {
+        router.push("/meetings")
+      }
     }
-  }
-}, [user, isLoading, pathname, router])
-
+  }, [user, isLoading, pathname, router])
 
   const loginWithGoogle = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+
+    // Add debugging
+    console.log("Google Client ID:", clientId)
+
+    if (!clientId) {
+      console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set!")
+      alert("Google Client ID is not configured. Please check your environment variables.")
+      return
+    }
+
     const redirectUri = `${window.location.origin}/auth/callback`
     const scope = "openid profile email"
 
@@ -78,6 +81,7 @@ useEffect(() => {
       `&access_type=offline` +
       `&prompt=consent`
 
+    console.log("Auth URL:", authUrl)
     window.location.href = authUrl
   }
 
@@ -88,11 +92,5 @@ useEffect(() => {
     router.push("/login")
   }
 
-  return (
-    <AuthContext.Provider
-      value={{ user, isLoading, loginWithGoogle, logout }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={{ user, isLoading, loginWithGoogle, logout }}>{children}</AuthContext.Provider>
 }
