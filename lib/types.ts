@@ -1,22 +1,36 @@
 export interface Meeting {
-  id: string
+  unique_session_id: string
+  meeting_id: string
+  user_id: string
   title: string
-  date: string
-  participants: string[]
-  status: "scheduled" | "in-progress" | "completed" | "cancelled"
+  created_at: string
 }
 
 export interface MeetingDetail {
-  id: string
+  unique_session_id: string
+  meeting_id: string
+  user_id: string
   title: string
-  date: string
-  participants: string[]
-  transcript: string
-  topics: string[]
-  highlights: {
+  created_at: string
+  segments: MeetingSegment[]
+  participants?: string[]
+  topics?: string[]
+  highlights?: {
     t: number
     text: string
   }[]
+}
+
+export interface MeetingSegment {
+  id: number
+  meeting_id: string
+  google_meet_user_id: string
+  username: string
+  timestamp: string
+  text: string
+  ver: number
+  mess_id: string
+  created_at: string
 }
 
 // Extend the next-auth session type
