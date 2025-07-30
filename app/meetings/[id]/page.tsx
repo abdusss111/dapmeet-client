@@ -8,32 +8,11 @@ import Link from "next/link"
 import DashboardLayout from "@/components/dashboard-layout"
 import { AIChat } from "@/components/ai-chat"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-type MeetingSegment = {
-  id: number
-  meeting_id: string
-  google_meet_user_id: string
-  username: string
-  timestamp: string
-  text: string
-  ver: number
-  mess_id: string
-  created_at: string
-}
-
-type MeetingMeta = {
-  id: string
-  title: string
-  created_at: Date
-  segments: MeetingSegment[]
-  participants?: string[]
-  topics?: string[]
-  highlights?: { t: number; text: string }[]
-}
+import type { MeetingDetail, MeetingSegment } from "@/lib/types"
 
 export default function MeetingDetailPage() {
   const { id } = useParams()
-  const [meeting, setMeeting] = useState<MeetingMeta | null>(null)
+  const [meeting, setMeeting] = useState<MeetingDetail | null>(null)
   const [transcript, setTranscript] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [loadingTranscript, setLoadingTranscript] = useState(false)
@@ -41,79 +20,56 @@ export default function MeetingDetailPage() {
 
   function formatTimestamp(timestamp: string): string {
     const date = new Date(timestamp)
-    return date.toLocaleTimeString('ru-RU', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+    return date.toLocaleTimeString("ru-RU", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     })
   }
 
   function formatTranscript(segments: MeetingSegment[]): string {
     return segments
-      .map(segment => {
+      .map((segment) => {
         const timecode = formatTimestamp(segment.timestamp)
-        const speakerName = segment.username
+        const speakerName = segment.speaker_username
         const text = segment.text
         return `${timecode}, ${speakerName}: ${text}`
       })
-      .join('\n')
+      .join("\n")
   }
 
-  // Fetch meeting metadata
+  // Fetch meeting metadata and transcript
   useEffect(() => {
     if (!id || typeof id !== "string") return
 
-    const fetchMeetingMeta = async () => {
+    const fetchMeetingData = async () => {
       try {
         const res = await fetch(`https://api.dapmeet.kz/api/meetings/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
           },
         })
-        if (!res.ok) throw new Error("Failed to fetch meeting metadata")
-        const data: MeetingMeta = await res.json()
+        if (!res.ok) throw new Error("Failed to fetch meeting data")
+        const data: MeetingDetail = await res.json()
+
         setMeeting(data)
+
+        // Format transcript from segments
+        if (data.segments && data.segments.length > 0) {
+          setTranscript(formatTranscript(data.segments))
+        }
       } catch (err) {
         console.error(err)
         router.push("/dashboard")
       } finally {
         setLoading(false)
-      }
-    }
-
-    fetchMeetingMeta()
-  }, [id, router])
-
-  // Fetch transcript once metadata is loaded
-  useEffect(() => {
-    if (!id || typeof id !== "string" || !meeting) return
-
-    setLoadingTranscript(true)
-    const fetchTranscript = async () => {
-      try {
-        const res = await fetch(`https://api.dapmeet.kz/api/meetings/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
-          },
-        })
-        if (!res.ok) throw new Error("Failed to fetch transcript")
-        const data = await res.json()
-        setTranscript(formatTranscript(data.segments))
-      } catch (err) {
-        console.error(err)
-      } finally {
         setLoadingTranscript(false)
       }
     }
 
-    fetchTranscript()
-  }, [id, meeting])
-
-  const getSize = (index: number) => {
-    const sizes = ["text-xs", "text-sm", "text-base", "text-lg", "text-xl"]
-    const maxIndex = Math.min(index, sizes.length - 1)
-    return sizes[sizes.length - 1 - maxIndex]
-  }
+    setLoadingTranscript(true)
+    fetchMeetingData()
+  }, [id, router])
 
   if (loading) {
     return <DashboardLayout>Загрузка...</DashboardLayout>
@@ -128,69 +84,53 @@ export default function MeetingDetailPage() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Link href="/meetings" className="mb-2 inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
+            <Link href="/meetings" className="mb-2 inline-flex items-center gap-1 text-gray-600 hover:text-gray-900">
               <ArrowLeft className="h-4 w-4" />
-              Назад к панели управления
+              Назад к встречам
             </Link>
-            <h1 className="text-3xl font-bold tracking-tight">{meeting.title}</h1>
-            <p className="text-muted-foreground">
-            {new Date(meeting.created_at).toLocaleDateString()}• 
-            <Calendar className="h-4 w-4 inline mr-1" />
-
-            {/* {meeting.participants?.length ?? 0} участников */}
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900">{meeting.title}</h1>
+            <p className="text-gray-600">
+              {new Date(meeting.created_at).toLocaleDateString("ru-RU")} •
+              <Calendar className="h-4 w-4 inline mr-1 ml-2" />
+              ID: {meeting.meeting_id}
             </p>
           </div>
-          {/* <div className="flex gap-2 self-end sm:self-auto">
-            <Button variant="outline" size="sm" className="gap-1">
-              <Download className="h-4 w-4" />
-              Скачать транскрипт
-            </Button>
-            <Button size="sm" className="gap-1">
-              <Download className="h-4 w-4" />
-              Скачать резюме
-            </Button>
-          </div> */}
         </div>
 
         <Tabs defaultValue="ai" className="space-y-4">
-          <TabsList>
-            {/* <TabsTrigger value="content">Содержание</TabsTrigger> */}
-            <TabsTrigger value="ai">ИИ</TabsTrigger>
+          <TabsList className="bg-gray-100">
+            <TabsTrigger value="ai" className="data-[state=active]:bg-white">
+              ИИ
+            </TabsTrigger>
           </TabsList>
 
-          
           <TabsContent value="ai">
-  <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6">
+              {/* AI Chat Block */}
+              <div className="w-full">
+                <AIChat meetingId={meeting.unique_session_id} meetingTitle={meeting.title} transcript={transcript} />
+              </div>
 
-
-    {/* Блок: AI Чат */}
-    <div className="w-full">
-      <AIChat
-        meetingId={meeting.id}
-        meetingTitle={meeting.title}
-        transcript={transcript}
-      />
-    </div>
-
-    {/* Блок: Транскрипт */}
-    <Card>
-      <CardHeader>
-        <CardTitle>Транскрипт встречи</CardTitle>
-        <CardDescription>Полный текст встречи</CardDescription>
-      </CardHeader>
-      <CardContent className="max-h-[600px] overflow-y-auto">
-        {loadingTranscript ? (
-          <p>Загрузка транскрипта...</p>
-        ) : (
-          <div className="space-y-4 whitespace-pre-line">
-            {transcript}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  </div>
-</TabsContent>
-
+              {/* Transcript Block */}
+              <Card className="bg-white border border-gray-200">
+                <CardHeader>
+                  <CardTitle className="text-gray-900">Транскрипт встречи</CardTitle>
+                  <CardDescription className="text-gray-600">
+                    Полный текст встречи ({meeting.segments?.length || 0} сегментов)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="max-h-[600px] overflow-y-auto">
+                  {loadingTranscript ? (
+                    <p className="text-gray-600">Загрузка транскрипта...</p>
+                  ) : transcript ? (
+                    <div className="space-y-4 whitespace-pre-line text-gray-800">{transcript}</div>
+                  ) : (
+                    <p className="text-gray-600">Транскрипт недоступен</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </DashboardLayout>
