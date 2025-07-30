@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -17,6 +16,7 @@ export const metadata: Metadata = {
     shortcut: "/favicon.png",   // rel="shortcut icon"
     // apple: "/apple-touch-icon.png" // if you add an Apple touch icon
   },
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({
