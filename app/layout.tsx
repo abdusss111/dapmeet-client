@@ -9,8 +9,8 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "DapMeet - AI Meeting Assistant",
-  description: "AI-powered meeting transcription and analysis",
+  title: "DapMeet - Умные встречи",
+  description: "Платформа для управления встречами с ИИ-анализом",
     generator: 'v0.dev'
 }
 
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <body className={inter.className}>
         <ThemeProvider>
           <AuthProvider>

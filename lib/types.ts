@@ -2,7 +2,7 @@ export interface User {
   id: string
   email: string
   name: string
-  avatar?: string
+  image?: string
 }
 
 export interface MeetingSegment {
@@ -24,6 +24,10 @@ export interface Meeting {
   title: string
   segments?: MeetingSegment[]
   created_at: string
+}
+
+export interface MeetingDetail extends Meeting {
+  segments: MeetingSegment[]
 }
 
 export interface MeetingWithSegments extends Meeting {

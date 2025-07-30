@@ -1,11 +1,13 @@
 "use client"
 
-import type * as React from "react"
+import type { ReactNode } from "react"
 
 interface ThemeProviderProps {
-  children: React.ReactNode
+  children: ReactNode
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   return <>{children}</>
 }
+
+export default ThemeProvider

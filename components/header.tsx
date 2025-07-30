@@ -18,7 +18,7 @@ interface HeaderProps {
   onToggleSidebar?: () => void
 }
 
-export default function Header({ onToggleSidebar }: HeaderProps) {
+export function Header({ onToggleSidebar }: HeaderProps) {
   const { user, logout } = useAuth()
 
   const initials = user?.name
@@ -29,7 +29,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
     : "П" // П for "Пользователь"
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-white px-4 md:px-6">
       <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="md:hidden">
         <Menu className="h-5 w-5" />
         <span className="sr-only">Переключить меню</span>
@@ -51,7 +51,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{user?.name}</p>
-                <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                <p className="text-xs leading-none text-gray-500">{user?.email}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -65,3 +65,6 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
     </header>
   )
 }
+
+// Default export for backward compatibility
+export default Header

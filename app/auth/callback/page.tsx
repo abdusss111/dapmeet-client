@@ -1,98 +1,73 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
-import { Loader2 } from "lucide-react"
+import { Suspense, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-
-function GoogleCallbackContent() {
+function AuthCallbackContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
-  const [errorMsg, setErrorMsg] = useState("")
+  const { login } = useAuth()
 
   useEffect(() => {
     const code = searchParams.get("code")
+    const error = searchParams.get("error")
 
-    if (!code) {
-      setStatus("error")
-      setErrorMsg("Код авторизации не получен из URL")
+    if (error) {
+      console.error("OAuth error:", error)
+      router.push("/login?error=oauth_error")
       return
     }
 
-    const authenticate = async () => {
-      try {
-        const res = await fetch(`${API_URL}/auth/google`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code }),
-        })
+    if (code) {
+      // Handle the OAuth code
+      const handleOAuthCallback = async () => {
+        try {
+          // Exchange code for tokens and user info
+          const response = await fetch(`https://api.dapmeet.kz/api/auth/google/callback?code=${code}`)
+          const data = await response.json()
 
-        if (!res.ok) {
-          const text = await res.text()
-          throw new Error(text)
+          if (data.user) {
+            login(data.user)
+            router.push("/dashboard")
+          } else {
+            router.push("/login?error=auth_failed")
+          }
+        } catch (error) {
+          console.error("Auth callback error:", error)
+          router.push("/login?error=auth_failed")
         }
-
-        const data = await res.json()
-
-        localStorage.setItem("APP_JWT", data.access_token)
-        localStorage.setItem("dapter_user", JSON.stringify(data.user))
-
-        const token = localStorage.getItem("APP_JWT")
-        if (token && window.opener) {
-          window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
-          window.close() // безопасно закрываем только если popup
-        }
-
-        // Надежный редирект
-        window.location.href = "/meetings"
-      } catch (err: any) {
-        console.error("Ошибка авторизации:", err)
-        setErrorMsg("Не удалось авторизоваться. Попробуйте снова.")
-        setStatus("error")
       }
+
+      handleOAuthCallback()
+    } else {
+      router.push("/login")
     }
+  }, [searchParams, router, login])
 
-    authenticate()
-  }, [searchParams])
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
-        <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
-        <p className="text-gray-500">Авторизация через Google...</p>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Авторизация...</p>
       </div>
-    )
-  }
-
-  if (status === "error") {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 space-y-4">
-        <p className="text-red-500 font-semibold">{errorMsg}</p>
-        <button
-          onClick={() => (window.location.href = "/login")}
-          className="px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800"
-        >
-          Вернуться на страницу входа
-        </button>
-      </div>
-    )
-  }
-
-  return null
+    </div>
+  )
 }
 
-export default function GoogleCallbackPage() {
+export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
-          <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
-          <p className="text-gray-500">Загрузка...</p>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Загрузка...</p>
+          </div>
         </div>
       }
     >
-      <GoogleCallbackContent />
+      <AuthCallbackContent />
     </Suspense>
   )
 }
