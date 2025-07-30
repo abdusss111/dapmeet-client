@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [errorMsg, setErrorMsg] = useState("")
@@ -37,14 +37,12 @@ export default function GoogleCallbackPage() {
 
         localStorage.setItem("APP_JWT", data.access_token)
         localStorage.setItem("dapter_user", JSON.stringify(data.user))
- 	const token = localStorage.getItem("APP_JWT")
-  	    if (token && window.opener) {
-    	    window.opener.postMessage(
-      		{ token },
-      		"chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc"
-    		);
-    window.close(); // безопасно закрываем только если popup
-  }
+
+        const token = localStorage.getItem("APP_JWT")
+        if (token && window.opener) {
+          window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
+          window.close() // безопасно закрываем только если popup
+        }
 
         // Надежный редирект
         window.location.href = "/meetings"
@@ -61,8 +59,8 @@ export default function GoogleCallbackPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
-        <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
-        <p className="text-muted-foreground">Авторизация через Google...</p>
+        <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
+        <p className="text-gray-500">Авторизация через Google...</p>
       </div>
     )
   }
@@ -73,7 +71,7 @@ export default function GoogleCallbackPage() {
         <p className="text-red-500 font-semibold">{errorMsg}</p>
         <button
           onClick={() => (window.location.href = "/login")}
-          className="px-4 py-2 bg-slate-900 text-white rounded-md"
+          className="px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800"
         >
           Вернуться на страницу входа
         </button>
@@ -82,4 +80,19 @@ export default function GoogleCallbackPage() {
   }
 
   return null
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
+          <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
+          <p className="text-gray-500">Загрузка...</p>
+        </div>
+      }
+    >
+      <GoogleCallbackContent />
+    </Suspense>
+  )
 }

@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "DapMeet - AI Meeting Assistant",
-  description: "Transform your meetings with AI-powered insights and summaries",
+  description: "AI-powered meeting transcription and analysis",
     generator: 'v0.dev'
 }
 

@@ -1,9 +1,8 @@
-export interface Meeting {
-  unique_session_id: string
-  meeting_id: string
-  user_id: string
-  title: string
-  created_at: string
+export interface User {
+  id: string
+  email: string
+  name: string
+  avatar?: string
 }
 
 export interface MeetingSegment {
@@ -18,27 +17,23 @@ export interface MeetingSegment {
   created_at: string
 }
 
-export interface MeetingDetail {
+export interface Meeting {
   unique_session_id: string
   meeting_id: string
   user_id: string
   title: string
-  segments: MeetingSegment[]
+  segments?: MeetingSegment[]
   created_at: string
-  participants?: string[]
-  topics?: string[]
-  highlights?: { t: number; text: string }[]
 }
 
-// Extend the next-auth session type
-declare module "next-auth" {
-  interface Session {
-    accessToken?: string
-  }
+export interface MeetingWithSegments extends Meeting {
+  segments: MeetingSegment[]
 }
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    accessToken?: string
-  }
+export interface AuthContextType {
+  user: User | null
+  login: (email: string, password: string) => Promise<void>
+  loginWithGoogle: () => void
+  logout: () => void
+  loading: boolean
 }

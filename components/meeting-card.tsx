@@ -1,8 +1,6 @@
-"use client"
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock } from "lucide-react"
+import { Calendar, Clock, Users } from "lucide-react"
 import Link from "next/link"
 import type { Meeting } from "@/lib/types"
 
@@ -14,7 +12,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ru-RU", {
       year: "numeric",
-      month: "long",
+      month: "short",
       day: "numeric",
     })
   }
@@ -28,27 +26,28 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
 
   return (
     <Link href={`/meetings/${meeting.unique_session_id}`}>
-      <Card className="bg-white border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
+      <Card className="hover:shadow-md transition-shadow cursor-pointer bg-white border-gray-200">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-lg font-semibold text-gray-900">{meeting.title}</CardTitle>
-              <CardDescription className="text-gray-600">ID: {meeting.meeting_id}</CardDescription>
-            </div>
-            <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
-              Завершена
+            <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2">{meeting.title}</CardTitle>
+            <Badge variant="secondary" className="ml-2 bg-gray-100 text-gray-700">
+              {meeting.segments?.length || 0} сегментов
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <div className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              <span>{formatDate(meeting.created_at)}</span>
+          <div className="space-y-2">
+            <div className="flex items-center text-sm text-gray-600">
+              <Calendar className="w-4 h-4 mr-2" />
+              {formatDate(meeting.created_at)}
             </div>
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              <span>{formatTime(meeting.created_at)}</span>
+            <div className="flex items-center text-sm text-gray-600">
+              <Clock className="w-4 h-4 mr-2" />
+              {formatTime(meeting.created_at)}
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <Users className="w-4 h-4 mr-2" />
+              ID: {meeting.meeting_id}
             </div>
           </div>
         </CardContent>

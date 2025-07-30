@@ -10,9 +10,7 @@ const nextConfig = {
     domains: ["lh3.googleusercontent.com"],
     unoptimized: true,
   },
-  experimental: {
-    serverActions: true,
-  },
+  // Remove the experimental.serverActions as it's no longer needed in Next.js 15
 }
 
 export default nextConfig
