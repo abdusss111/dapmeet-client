@@ -110,6 +110,7 @@ export function TranscriptView({ meeting, searchQuery, selectedSpeakers }: Trans
                       />
                     ))}
                   </div>
+                  </div>
                 </div>
               </div>
 

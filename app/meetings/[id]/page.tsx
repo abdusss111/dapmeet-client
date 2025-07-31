@@ -137,24 +137,32 @@ export default function MeetingDetailPage() {
         </Link>
       </div>
 
-      {/* Meeting Details */}
-      <MeetingDetails meeting={meeting} />
+      {/* Tabs */}
+      <Tabs defaultValue="transcript" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="transcript">Транскрипт</TabsTrigger>
+          <TabsTrigger value="ai">ИИ Анализ</TabsTrigger>
+        </TabsList>
 
-      {/* Meeting Controls (Search & Filtering) */}
-      <MeetingControls
-        meeting={meeting}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedSpeakers={selectedSpeakers}
-        onSpeakerToggle={handleSpeakerToggle}
-      />
+        <TabsContent value="transcript" className="space-y-6">
+          <MeetingDetails meeting={meeting} />
+        </TabsContent>
 
-      {/* AI Chat */}
-      <AIChat
-        meetingId={meeting.unique_session_id}
-        meetingTitle={meeting.title}
-        transcript={formatTranscript(meeting)}
-      />
+        <TabsContent value="ai" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <MeetingDetails meeting={meeting} />
+            </div>
+            <div className="lg:sticky lg:top-6">
+              <AIChat
+                meetingId={meeting.unique_session_id}
+                meetingTitle={meeting.title}
+                transcript={formatTranscript(meeting)}
+              />
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   </DashboardLayout>
   )
