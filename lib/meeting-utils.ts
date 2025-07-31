@@ -1,162 +1,146 @@
-import type { MeetingSegment, ProcessedSegment, Meeting } from "./types"
+import type { MeetingSegment, ProcessedSegment } from "./types"
 
-// Speaker colors for consistent identification
+// Speaker colors for consistent UI
 const SPEAKER_COLORS = [
-  "#3B82F6", // blue
-  "#EF4444", // red
-  "#10B981", // green
-  "#F59E0B", // amber
-  "#8B5CF6", // violet
-  "#EC4899", // pink
-  "#06B6D4", // cyan
-  "#84CC16", // lime
+  "bg-blue-100 text-blue-800",
+  "bg-green-100 text-green-800",
+  "bg-purple-100 text-purple-800",
+  "bg-orange-100 text-orange-800",
+  "bg-pink-100 text-pink-800",
+  "bg-indigo-100 text-indigo-800",
+  "bg-yellow-100 text-yellow-800",
+  "bg-red-100 text-red-800",
 ]
 
-export function formatTimestamp(isoString: string): string {
-  try {
-    const date = new Date(isoString)
-    return date.toLocaleTimeString("ru-RU", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    })
-  } catch (error) {
-    console.error("Error formatting timestamp:", error)
-    return "Invalid time"
-  }
+export const formatTimestamp = (isoString: string): string => {
+  const date = new Date(isoString)
+  return date.toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  })
 }
 
-export function formatDate(isoString: string): string {
-  try {
-    const date = new Date(isoString)
-    return date.toLocaleDateString("ru-RU", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  } catch (error) {
-    console.error("Error formatting date:", error)
-    return "Invalid date"
-  }
+export const formatDate = (isoString: string): string => {
+  const date = new Date(isoString)
+  return date.toLocaleDateString("ru-RU", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
 }
 
-export function calculateDuration(segments: MeetingSegment[]): string {
+export const formatDateTime = (dateString: string): string => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+export const calculateDuration = (segments: MeetingSegment[]): string => {
   if (!segments || segments.length === 0) return "0:00"
 
-  try {
-    const sortedSegments = [...segments].sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-    )
+  const sortedSegments = [...segments].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
 
-    const first = new Date(sortedSegments[0].timestamp)
-    const last = new Date(sortedSegments[sortedSegments.length - 1].timestamp)
-    const diffMs = last.getTime() - first.getTime()
+  const first = new Date(sortedSegments[0].timestamp)
+  const last = new Date(sortedSegments[sortedSegments.length - 1].timestamp)
+  const diffMs = last.getTime() - first.getTime()
 
-    const minutes = Math.floor(diffMs / 60000)
-    const seconds = Math.floor((diffMs % 60000) / 1000)
+  const minutes = Math.floor(diffMs / 60000)
+  const seconds = Math.floor((diffMs % 60000) / 1000)
 
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`
-  } catch (error) {
-    console.error("Error calculating duration:", error)
-    return "0:00"
-  }
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`
 }
 
-export function getUniqueSpeakers(segments: MeetingSegment[]): string[] {
-  if (!segments) return []
+export const getUniqueSpeakers = (segments: MeetingSegment[]): string[] => {
+  if (!segments || !Array.isArray(segments)) return []
 
   const speakers = new Set<string>()
   segments.forEach((segment) => {
-    if (segment.speaker_username) {
+    if (segment && segment.speaker_username) {
       speakers.add(segment.speaker_username)
     }
   })
   return Array.from(speakers)
 }
 
-export function getSpeakerColor(speaker: string, speakers: string[]): string {
-  const index = speakers.indexOf(speaker)
+export const getSpeakerColor = (speaker: string, allSpeakers: string[]): string => {
+  const index = allSpeakers.indexOf(speaker)
   return SPEAKER_COLORS[index % SPEAKER_COLORS.length]
 }
 
-export function processSegments(segments: MeetingSegment[]): ProcessedSegment[] {
-  if (!segments || segments.length === 0) return []
+export const processSegments = (segments: MeetingSegment[]): ProcessedSegment[] => {
+  if (!segments || !Array.isArray(segments) || segments.length === 0) return []
 
-  try {
-    // Sort segments by timestamp
-    const sortedSegments = [...segments].sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-    )
+  // Sort segments by timestamp
+  const sortedSegments = [...segments].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
 
-    const speakers = getUniqueSpeakers(sortedSegments)
-    const processed: ProcessedSegment[] = []
+  const allSpeakers = getUniqueSpeakers(sortedSegments)
+  const processed: ProcessedSegment[] = []
 
-    for (let i = 0; i < sortedSegments.length; i++) {
-      const segment = sortedSegments[i]
-      const prevSegment = i > 0 ? sortedSegments[i - 1] : null
+  for (let i = 0; i < sortedSegments.length; i++) {
+    const segment = sortedSegments[i]
+    const prevSegment = sortedSegments[i - 1]
 
-      // Check if this should be grouped with previous message
-      const shouldGroup =
-        prevSegment &&
-        prevSegment.speaker_username === segment.speaker_username &&
-        new Date(segment.timestamp).getTime() - new Date(prevSegment.timestamp).getTime() < 120000 // 2 minutes
+    // Check if this should be grouped with previous segment
+    const shouldGroup =
+      prevSegment &&
+      prevSegment.speaker_username === segment.speaker_username &&
+      new Date(segment.timestamp).getTime() - new Date(prevSegment.timestamp).getTime() < 120000 // 2 minutes
 
-      const processedSegment: ProcessedSegment = {
+    if (shouldGroup && processed.length > 0) {
+      // Add to previous group
+      const lastProcessed = processed[processed.length - 1]
+      lastProcessed.groupedMessages.push(segment.text)
+    } else {
+      // Create new group
+      processed.push({
         ...segment,
         groupedMessages: [segment.text],
-        isFirstInGroup: !shouldGroup,
-        speakerColor: getSpeakerColor(segment.speaker_username, speakers),
-      }
-
-      if (shouldGroup && processed.length > 0) {
-        // Add to previous group
-        const lastProcessed = processed[processed.length - 1]
-        lastProcessed.groupedMessages.push(segment.text)
-      } else {
-        processed.push(processedSegment)
-      }
+        isFirstInGroup: true,
+        speakerColor: getSpeakerColor(segment.speaker_username, allSpeakers),
+      })
     }
-
-    return processed
-  } catch (error) {
-    console.error("Error processing segments:", error)
-    return []
   }
+
+  return processed
 }
 
-export function exportTranscript(meeting: Meeting): void {
-  if (!meeting || !meeting.segments) return
+export const searchInTranscript = (segments: MeetingSegment[], query: string): MeetingSegment[] => {
+  if (!segments || !Array.isArray(segments)) return []
+  if (!query.trim()) return segments
 
-  try {
-    const speakers = getUniqueSpeakers(meeting.segments)
-    const processed = processSegments(meeting.segments)
+  const lowerQuery = query.toLowerCase()
+  return segments.filter(
+    (segment) =>
+      segment &&
+      (segment.text.toLowerCase().includes(lowerQuery) || segment.speaker_username.toLowerCase().includes(lowerQuery)),
+  )
+}
 
-    let transcript = `Meeting: ${meeting.title}\n`
-    transcript += `Date: ${formatDate(meeting.created_at)}\n`
-    transcript += `Duration: ${calculateDuration(meeting.segments)}\n`
-    transcript += `Participants: ${speakers.join(", ")}\n\n`
-    transcript += "--- Transcript ---\n\n"
+export const exportTranscript = (segments: MeetingSegment[], title: string): void => {
+  if (!segments || !Array.isArray(segments)) return
 
-    processed.forEach((segment) => {
-      transcript += `[${formatTimestamp(segment.timestamp)}] ${segment.speaker_username}:\n`
-      segment.groupedMessages.forEach((message) => {
-        transcript += `${message}\n`
-      })
-      transcript += "\n"
+  const sortedSegments = [...segments].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+
+  const content = sortedSegments
+    .map((segment) => {
+      const time = formatTimestamp(segment.timestamp)
+      return `${time} - ${segment.speaker_username}: ${segment.text}`
     })
+    .join("\n")
 
-    const blob = new Blob([transcript], { type: "text/plain" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${meeting.title}_transcript.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error("Error exporting transcript:", error)
-  }
+  const blob = new Blob([content], { type: "text/plain" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `${title}_transcript.txt`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }

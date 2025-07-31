@@ -1,96 +1,97 @@
 "use client"
 
-import { createContext, useState, useEffect, type ReactNode } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import type React from "react"
+import { createContext, useState, useEffect } from "react"
 
-export type User = {
+interface User {
   id: string
-  name: string
   email: string
-  image: string | null
+  name: string
+  avatar?: string
 }
 
-export type AuthContextType = {
+interface AuthContextType {
   user: User | null
-  isLoading: boolean
+  token: string | null
+  login: (email: string, password: string) => Promise<void>
   loginWithGoogle: () => void
   logout: () => void
+  loading: boolean
 }
 
-export const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: true,
-  loginWithGoogle: () => {},
-  logout: () => {},
-})
+export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
-  const pathname = usePathname()
+  const [token, setToken] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("dapter_user")
+    // Check for stored token on mount
+    const storedToken = localStorage.getItem("auth_token")
+    const storedUser = localStorage.getItem("auth_user")
 
-    try {
-      if (storedUser) {
-        setUser(JSON.parse(storedUser))
-      }
-    } catch (err) {
-      console.error("Ошибка чтения пользователя:", err)
+    if (storedToken && storedUser) {
+      setToken(storedToken)
+      setUser(JSON.parse(storedUser))
     }
-
-    setIsLoading(false)
+    setLoading(false)
   }, [])
-
-  useEffect(() => {
-    if (!isLoading) {
-      const publicRoutes = ["/login", "/privacy", "/"] // add any more public routes here
-      const isPublicPage = publicRoutes.includes(pathname)
-
-      if (!user && !isPublicPage) {
-        router.push("/")
-      } else if (user && pathname === "/login") {
-        router.push("/meetings")
-      }
-    }
-  }, [user, isLoading, pathname, router])
 
   const loginWithGoogle = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-
-    // Add debugging
-    console.log("Google Client ID:", clientId)
-
     if (!clientId) {
-      console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set!")
-      alert("Google Client ID is not configured. Please check your environment variables.")
+      console.error("Google Client ID not found")
       return
     }
 
     const redirectUri = `${window.location.origin}/auth/callback`
-    const scope = "openid profile email"
+    const scope = "openid email profile"
+    const responseType = "code"
+    const state = Math.random().toString(36).substring(7)
 
-    const authUrl =
-      `https://accounts.google.com/o/oauth2/v2/auth?` +
-      `client_id=${clientId}` +
-      `&redirect_uri=${redirectUri}` +
-      `&response_type=code` +
-      `&scope=${encodeURIComponent(scope)}` +
-      `&access_type=offline` +
-      `&prompt=consent`
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=${responseType}&state=${state}`
 
-    console.log("Auth URL:", authUrl)
     window.location.href = authUrl
+  }
+
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await fetch("https://api.dapmeet.kz/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Login failed")
+      }
+
+      const data = await response.json()
+      setToken(data.token)
+      setUser(data.user)
+
+      // Store in localStorage
+      localStorage.setItem("auth_token", data.token)
+      localStorage.setItem("auth_user", JSON.stringify(data.user))
+    } catch (error) {
+      console.error("Login error:", error)
+      throw error
+    }
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem("dapter_user")
-    localStorage.removeItem("APP_JWT")
-    router.push("/login")
+    setToken(null)
+    localStorage.removeItem("auth_token")
+    localStorage.removeItem("auth_user")
   }
 
-  return <AuthContext.Provider value={{ user, isLoading, loginWithGoogle, logout }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, token, login, loginWithGoogle, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }

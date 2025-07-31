@@ -2,40 +2,42 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 import { MeetingDetails } from "@/components/meeting-details"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import type { Meeting } from "@/lib/types"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
+import type { MeetingWithSegments } from "@/lib/types"
 
 export default function MeetingDetailPage() {
   const params = useParams()
-  const [meeting, setMeeting] = useState<Meeting | null>(null)
+  const { token } = useAuth()
+  const [meeting, setMeeting] = useState<MeetingWithSegments | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchMeeting = async () => {
-      if (!params.id) return
+      if (!params.id || !token) {
+        setLoading(false)
+        return
+      }
 
       try {
-        setLoading(true)
-        setError(null)
-
-        const response = await fetch(`https://api.dapmeet.kz/api/meetings/${params.id}`)
+        const response = await fetch(`https://api.dapmeet.kz/api/meetings/${params.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
 
         if (!response.ok) {
           throw new Error(`Failed to fetch meeting: ${response.status}`)
         }
 
         const data = await response.json()
-
-        // Ensure segments is always an array
-        const meetingData: Meeting = {
-          ...data,
-          segments: Array.isArray(data.segments) ? data.segments : [],
-        }
-
-        setMeeting(meetingData)
+        setMeeting(data)
       } catch (err) {
         console.error("Error fetching meeting:", err)
         setError(err instanceof Error ? err.message : "Failed to load meeting")
@@ -45,57 +47,33 @@ export default function MeetingDetailPage() {
     }
 
     fetchMeeting()
-  }, [params.id])
+  }, [params.id, token])
+
+  if (!token) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Please log in to view meeting details.</AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <Skeleton className="h-8 w-64 mb-4" />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-4 w-24" />
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-6 w-20" />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <Skeleton className="h-10 w-full mb-4" />
-            <div className="flex gap-2">
-              <Skeleton className="h-8 w-20" />
-              <Skeleton className="h-8 w-20" />
-            </div>
-          </CardContent>
-        </Card>
-
+      <div className="container mx-auto px-4 py-8">
         <Card>
-          <CardContent className="p-0">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="p-4 border-b last:border-b-0">
-                <div className="flex gap-3">
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <div className="flex gap-2">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                </div>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-1/3" />
+              <Skeleton className="h-4 w-1/2" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-5/6" />
               </div>
-            ))}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -104,26 +82,29 @@ export default function MeetingDetailPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <div className="text-red-600 mb-2">Error loading meeting</div>
-            <div className="text-muted-foreground text-sm">{error}</div>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       </div>
     )
   }
 
   if (!meeting) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card>
-          <CardContent className="pt-6 text-center text-muted-foreground">Meeting not found</CardContent>
-        </Card>
+      <div className="container mx-auto px-4 py-8">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Meeting not found.</AlertDescription>
+        </Alert>
       </div>
     )
   }
 
-  return <MeetingDetails meeting={meeting} />
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <MeetingDetails meeting={meeting} />
+    </div>
+  )
 }
