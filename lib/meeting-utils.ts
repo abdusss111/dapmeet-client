@@ -57,9 +57,13 @@ export const calculateDuration = (segments: MeetingSegment[]): string => {
 }
 
 export const getUniqueSpeakers = (segments: MeetingSegment[]): string[] => {
+  if (!segments || !Array.isArray(segments) || segments.length === 0) {
+    return []
+  }
+  
   const speakers = new Set<string>()
   segments.forEach((segment) => {
-    if (segment.speaker_username) {
+    if (segment && segment.speaker_username && typeof segment.speaker_username === 'string') {
       speakers.add(segment.speaker_username)
     }
   })

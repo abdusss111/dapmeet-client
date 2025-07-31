@@ -12,15 +12,19 @@ interface MeetingCardProps {
 }
 
 export function MeetingCard({ meeting }: MeetingCardProps) {
-  const uniqueSpeakers = getUniqueSpeakers(meeting.segments)
-  const segmentCount = meeting.segments?.length || 0
+  // Production-safe checks
+  const segments = Array.isArray(meeting.segments) ? meeting.segments : []
+  const uniqueSpeakers = segments.length > 0 ? getUniqueSpeakers(segments) : []
+  const segmentCount = segments.length
 
   return (
-    <Link href={`/meetings/${meeting.unique_session_id}`}>
+    <Link href={`/meetings/${meeting.unique_session_id || meeting.id}`}>
       <Card className="hover:shadow-md transition-shadow cursor-pointer bg-white border-gray-200">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
-            <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2">{meeting.title}</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2">
+              {meeting.title || "Без названия"}
+            </CardTitle>
             <Badge variant="secondary" className="ml-2 bg-green-50 text-green-700 border-green-200">
               Завершена
             </Badge>
@@ -30,11 +34,11 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
           <div className="space-y-2">
             <div className="flex items-center text-sm text-gray-600">
               <Calendar className="w-4 h-4 mr-2" />
-              {formatDate(meeting.created_at)}
+              {meeting.created_at ? formatDate(meeting.created_at) : "Дата не указана"}
             </div>
             <div className="flex items-center text-sm text-gray-600">
               <Clock className="w-4 h-4 mr-2" />
-              {formatTimestamp(meeting.created_at)}
+              {meeting.created_at ? formatTimestamp(meeting.created_at) : "--:--"}
             </div>
             <div className="flex items-center text-sm text-gray-600">
               <Users className="w-4 h-4 mr-2" />
