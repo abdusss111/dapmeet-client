@@ -30,11 +30,24 @@ export default function Home() {
             {/* fallback на случай, если object не загрузится */}
             <img
               src="/dap.svg"
-              alt="Dapmeet logo"
+              alt="Dapmeet.AI Logo"
               className="h-auto w-auto object-contain"
             />
           </object>
         </div>
+
+
+
+        {/* Title */}
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl mb-2">
+             Ваша цифровая dapter для записей онлайн встреч!
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Анализируйте и извлекайте ценные идеи, моменты из ваших онлайн-встреч
+          </p>
+        </div>
+
         {/* CTA */}
         <div className="flex flex-col items-center gap-2">
           <Button asChild size="lg" className="gap-2">

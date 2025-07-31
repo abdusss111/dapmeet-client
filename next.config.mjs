@@ -10,6 +10,9 @@ const nextConfig = {
     domains: ["lh3.googleusercontent.com"],
     unoptimized: true,
   },
+  experimental: {
+    serverActions: true,
+  },
 }
 
 export default nextConfig
