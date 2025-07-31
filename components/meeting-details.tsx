@@ -21,15 +21,6 @@ export function MeetingDetails({ meeting }: MeetingDetailsProps) {
   return (
     <div className="space-y-6">
       <MeetingHeader meeting={meeting} />
-
-      <MeetingControls
-        meeting={meeting}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedSpeakers={selectedSpeakers}
-        onSpeakerToggle={handleSpeakerToggle}
-      />
-
       <TranscriptView meeting={meeting} searchQuery={searchQuery} selectedSpeakers={selectedSpeakers} />
     </div>
   )

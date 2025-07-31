@@ -126,44 +126,44 @@ export default function MeetingDetailPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Navigation */}
-        <div className="flex items-center gap-4">
-          <Link href="/meetings">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад к встречам
-            </Button>
-          </Link>
-        </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="transcript" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="transcript">Транскрипт</TabsTrigger>
-            <TabsTrigger value="ai">ИИ Анализ</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="transcript" className="space-y-6">
-            <MeetingDetails meeting={meeting} />
-          </TabsContent>
-
-          <TabsContent value="ai" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <MeetingDetails meeting={meeting} />
-              </div>
-              <div className="lg:sticky lg:top-6">
-                <AIChat
-                  meetingId={meeting.unique_session_id}
-                  meetingTitle={meeting.title}
-                  transcript={formatTranscript(meeting)}
-                />
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+    <div className="space-y-6">
+      {/* Navigation */}
+      <div className="flex items-center gap-4">
+        <Link href="/meetings">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Назад к встречам
+          </Button>
+        </Link>
       </div>
-    </DashboardLayout>
+
+      {/* Tabs */}
+      <Tabs defaultValue="transcript" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="transcript">Транскрипт</TabsTrigger>
+          <TabsTrigger value="ai">ИИ Анализ</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="transcript" className="space-y-6">
+          <MeetingDetails meeting={meeting} />
+        </TabsContent>
+
+        <TabsContent value="ai" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <MeetingDetails meeting={meeting} />
+            </div>
+            <div className="lg:sticky lg:top-6">
+              <AIChat
+                meetingId={meeting.unique_session_id}
+                meetingTitle={meeting.title}
+                transcript={formatTranscript(meeting)}
+              />
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  </DashboardLayout>
   )
 }

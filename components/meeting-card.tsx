@@ -25,9 +25,6 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
             <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2">
               {meeting.title || "Без названия"}
             </CardTitle>
-            <Badge variant="secondary" className="ml-2 bg-green-50 text-green-700 border-green-200">
-              Завершена
-            </Badge>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
@@ -42,11 +39,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
             </div>
             <div className="flex items-center text-sm text-gray-600">
               <Users className="w-4 h-4 mr-2" />
-              {uniqueSpeakers.length} участников
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              {segmentCount} сегментов
+              {uniqueSpeakers.length} участников и какие 
             </div>
           </div>
         </CardContent>

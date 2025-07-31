@@ -68,9 +68,6 @@ export function TranscriptView({ meeting, searchQuery, selectedSpeakers }: Trans
         <CardTitle className="flex items-center gap-2">
           <MessageSquare className="w-5 h-5" />
           Транскрипт встречи
-          <Badge variant="outline" className="ml-2">
-            {filteredAndProcessedSegments.length} групп сообщений
-          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -99,9 +96,6 @@ export function TranscriptView({ meeting, searchQuery, selectedSpeakers }: Trans
                       <Clock className="w-3 h-3" />
                       {formatTimestamp(segment.timestamp)}
                     </div>
-                    <Badge variant="outline" className="text-xs">
-                      v{segment.version}
-                    </Badge>
                   </div>
 
                   {/* Messages */}
@@ -116,14 +110,6 @@ export function TranscriptView({ meeting, searchQuery, selectedSpeakers }: Trans
                       />
                     ))}
                   </div>
-
-                  {/* Metadata (hidden by default, shown on hover) */}
-                  <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="text-xs text-gray-400 space-x-2">
-                      <span>ID: {segment.message_id}</span>
-                      <span>•</span>
-                      <span>Создано: {formatTimestamp(segment.created_at)}</span>
-                    </div>
                   </div>
                 </div>
               </div>
