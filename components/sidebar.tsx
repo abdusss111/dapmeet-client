@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Home, Calendar, Settings, Users, MessageSquare } from "lucide-react"
+import { MessageSquare, BookOpen } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -9,11 +9,12 @@ export function Sidebar() {
   const pathname = usePathname()
 
   const navigation = [
-   /*  { name: "Панель управления", href: "/dashboard", icon: Home },*/
+    /*  { name: "Панель управления", href: "/dashboard", icon: Home },*/
     { name: "Встречи", href: "/meetings", icon: MessageSquare },
+    { name: "Инструкция", href: "/instruction", icon: BookOpen },
     /* { name: "Календарь", href: "/calendar", icon: Calendar },*/
     /*{ name: "Участники", href: "/participants", icon: Users },*/
-/*{ name: "Настройки", href: "/settings", icon: Settings },*/
+    /*{ name: "Настройки", href: "/settings", icon: Settings },*/
   ]
 
   return (
