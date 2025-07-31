@@ -32,17 +32,15 @@ export function AIChat({ meetingId, meetingTitle, transcript }: AIChatProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: userMessage,
-          meetingId,
-          meetingTitle,
-          transcript,
+          prompt: userMessage,
+          context: transcript,
         }),
       })
 
       if (!response.ok) throw new Error("Failed to send message")
 
       const data = await response.json()
-      setMessages((prev) => [...prev, { role: "assistant", content: data.message }])
+      setMessages((prev) => [...prev, { role: "assistant", content: data.text }])
     } catch (error) {
       console.error("Error sending message:", error)
       setMessages((prev) => [

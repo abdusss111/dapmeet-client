@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
+    "@anthropic-ai/sdk": "latest",
     "@auth/core": "latest",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "latest",
