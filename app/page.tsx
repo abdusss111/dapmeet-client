@@ -30,7 +30,7 @@ export default function Home() {
             {/* fallback на случай, если object не загрузится */}
             <img
               src="/dap.svg"
-              alt="Dapmeet.AI Logo"
+              alt="Dapmeet logo"
               className="h-auto w-auto object-contain"
             />
           </object>
