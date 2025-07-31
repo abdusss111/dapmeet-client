@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Clock, Users } from "lucide-react"
-import { formatDate, formatTimestamp, getUniqueSpeakers } from "@/lib/meeting-utils"
+import { formatDate, formatTimestamp } from "@/lib/meeting-utils"
+import { useAuth } from "@/hooks/use-auth"
 import type { Meeting } from "@/lib/types"
 
 interface MeetingCardProps {
@@ -11,10 +12,17 @@ interface MeetingCardProps {
 }
 
 export function MeetingCard({ meeting }: MeetingCardProps) {
-  // Production-safe checks
-  const segments = Array.isArray(meeting.segments) ? meeting.segments : []
-  const uniqueSpeakers = segments.length > 0 ? getUniqueSpeakers(segments) : []
-  const segmentCount = segments.length
+  const { user } = useAuth()
+
+  // Filter out current user from speakers list
+  const otherSpeakers = meeting.speakers?.filter((speaker) => speaker !== user?.name) || []
+  const speakersToShow = otherSpeakers.slice(0, 3)
+  const remainingCount = otherSpeakers.length - speakersToShow.length
+
+  const speakersText =
+    speakersToShow.length > 0
+      ? `${speakersToShow.join(", ")}${remainingCount > 0 ? ` и еще ${remainingCount}` : ""}`
+      : "Нет других участников"
 
   return (
     <Link href={`/meetings/${meeting.unique_session_id || meeting.id}`}>
@@ -37,8 +45,10 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
               {meeting.created_at ? formatTimestamp(meeting.created_at) : "--:--"}
             </div>
             <div className="flex items-center text-sm text-gray-600">
-              <Users className="w-4 h-4 mr-2" />
-              {uniqueSpeakers.length} участников
+              <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="truncate">
+                {otherSpeakers.length} участников: {speakersText}
+              </span>
             </div>
           </div>
         </CardContent>
