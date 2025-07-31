@@ -7,10 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import DashboardLayout from "@/components/dashboard-layout"
+// import MeetingFilters from "@/components/meeting-filters"
 import { CalendarView } from "@/components/calendar-view"
-import { MeetingCard } from "@/components/meeting-card"
+import { MeetingCard } from "@/components/meeting-card" // 👈 create this if not yet
 
-
+// export const metadata: Metadata = {
+//   title: "Встречи | Dapter.AI",
+//   description: "Просмотр и управление встречами",
+// }
 
 type Meeting = {
   id: string
@@ -71,6 +75,10 @@ export default function MeetingsPage() {
               <MeetingsListSkeleton />
             ) : (
               <Card>
+                <CardHeader>
+                  <CardTitle>Встречи</CardTitle>
+                  <CardDescription>Ваши недавние и предстоящие встречи</CardDescription>
+                </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {meetings.length === 0 ? (

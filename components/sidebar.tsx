@@ -6,13 +6,12 @@ import { cn } from "@/lib/utils"
 import { Home, Calendar, Users, Settings, CreditCard, FileText } from "lucide-react"
 
 const navigation = [
-  // { name: "Главная", href: "/dashboard", icon: Home },
+  { name: "Главная", href: "/dashboard", icon: Home },
   { name: "Встречи", href: "/meetings", icon: Calendar },
-  // { name: "Пользователи", href: "/users", icon: Users },
-  // { name: "Настройки", href: "/settings", icon: Settings },
+  { name: "Пользователи", href: "/users", icon: Users },
+  { name: "Настройки", href: "/settings", icon: Settings },
   { name: "Платежи", href: "/payments", icon: CreditCard },
-  // { name: "Документы", href: "/documents", icon: FileText },
-  // инструкция
+  { name: "Документы", href: "/documents", icon: FileText },
 ]
 
 export function Sidebar() {

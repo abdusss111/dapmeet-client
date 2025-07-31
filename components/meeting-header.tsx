@@ -41,6 +41,13 @@ export function MeetingHeader({ meeting }: MeetingHeaderProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
+              <Hash className="w-4 h-4" />
+              ID встречи
+            </div>
+            <p className="text-sm text-gray-600 font-mono">{meeting.meeting_id}</p>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
               <Users className="w-4 h-4" />
               Участники
             </div>
@@ -49,9 +56,13 @@ export function MeetingHeader({ meeting }: MeetingHeaderProps) {
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
               <MessageSquare className="w-4 h-4" />
-              Сказано
+              Сообщения
             </div>
-            <p className="text-sm text-gray-600">{totalMessages} реплик</p>
+            <p className="text-sm text-gray-600">{totalMessages} сегментов</p>
+          </div>
+          <div className="space-y-1">
+            <div className="text-sm font-medium text-gray-700">Сессия</div>
+            <p className="text-xs text-gray-500 font-mono break-all">{meeting.unique_session_id}</p>
           </div>
         </div>
 
