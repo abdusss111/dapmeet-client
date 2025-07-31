@@ -1,10 +1,12 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
-function GoogleCallbackContent() {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+
+export default function GoogleCallbackPage() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [errorMsg, setErrorMsg] = useState("")
@@ -20,7 +22,7 @@ function GoogleCallbackContent() {
 
     const authenticate = async () => {
       try {
-        const res = await fetch(`https://api.dapmeet.kz/auth/google`, {
+        const res = await fetch(`${API_URL}/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code }),
@@ -35,12 +37,14 @@ function GoogleCallbackContent() {
 
         localStorage.setItem("APP_JWT", data.access_token)
         localStorage.setItem("dapter_user", JSON.stringify(data.user))
-
-        const token = localStorage.getItem("APP_JWT")
-        if (token && window.opener) {
-          window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
-          window.close() // безопасно закрываем только если popup
-        }
+ 	const token = localStorage.getItem("APP_JWT")
+  	    if (token && window.opener) {
+    	    window.opener.postMessage(
+      		{ token },
+      		"chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc"
+    		);
+    window.close(); // безопасно закрываем только если popup
+  }
 
         // Надежный редирект
         window.location.href = "/meetings"
@@ -78,19 +82,4 @@ function GoogleCallbackContent() {
   }
 
   return null
-}
-
-export default function GoogleCallbackPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
-          <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
-          <p className="text-muted-foreground">Загрузка...</p>
-        </div>
-      }
-    >
-      <GoogleCallbackContent />
-    </Suspense>
-  )
 }

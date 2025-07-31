@@ -57,11 +57,9 @@ export const calculateDuration = (segments: MeetingSegment[]): string => {
 }
 
 export const getUniqueSpeakers = (segments: MeetingSegment[]): string[] => {
-  if (!segments || !Array.isArray(segments)) return []
-
   const speakers = new Set<string>()
   segments.forEach((segment) => {
-    if (segment && segment.speaker_username) {
+    if (segment.speaker_username) {
       speakers.add(segment.speaker_username)
     }
   })
@@ -74,7 +72,7 @@ export const getSpeakerColor = (speaker: string, allSpeakers: string[]): string 
 }
 
 export const processSegments = (segments: MeetingSegment[]): ProcessedSegment[] => {
-  if (!segments || !Array.isArray(segments) || segments.length === 0) return []
+  if (!segments || segments.length === 0) return []
 
   // Sort segments by timestamp
   const sortedSegments = [...segments].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
@@ -111,20 +109,16 @@ export const processSegments = (segments: MeetingSegment[]): ProcessedSegment[] 
 }
 
 export const searchInTranscript = (segments: MeetingSegment[], query: string): MeetingSegment[] => {
-  if (!segments || !Array.isArray(segments)) return []
   if (!query.trim()) return segments
 
   const lowerQuery = query.toLowerCase()
   return segments.filter(
     (segment) =>
-      segment &&
-      (segment.text.toLowerCase().includes(lowerQuery) || segment.speaker_username.toLowerCase().includes(lowerQuery)),
+      segment.text.toLowerCase().includes(lowerQuery) || segment.speaker_username.toLowerCase().includes(lowerQuery),
   )
 }
 
 export const exportTranscript = (segments: MeetingSegment[], title: string): void => {
-  if (!segments || !Array.isArray(segments)) return
-
   const sortedSegments = [...segments].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
 
   const content = sortedSegments

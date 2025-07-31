@@ -1,7 +1,9 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Users, MessageSquare } from "lucide-react"
-import { formatDate, calculateDuration, getUniqueSpeakers } from "@/lib/meeting-utils"
+import { Calendar, Clock, Users, MessageSquare, Hash } from "lucide-react"
+import { formatDateTime, calculateDuration, getUniqueSpeakers } from "@/lib/meeting-utils"
 import type { Meeting } from "@/lib/types"
 
 interface MeetingHeaderProps {
@@ -9,78 +11,74 @@ interface MeetingHeaderProps {
 }
 
 export function MeetingHeader({ meeting }: MeetingHeaderProps) {
-  if (!meeting) return null
-
-  const speakers = getUniqueSpeakers(meeting.segments || [])
-  const duration = calculateDuration(meeting.segments || [])
-  const segmentCount = meeting.segments?.length || 0
+  const duration = calculateDuration(meeting.segments)
+  const uniqueSpeakers = getUniqueSpeakers(meeting.segments)
+  const totalMessages = meeting.segments.length
 
   return (
-    <Card className="mb-6">
+    <Card className="bg-white border-gray-200">
       <CardHeader>
-        <div className="flex flex-col gap-4">
-          <div>
-            <CardTitle className="text-2xl font-bold">{meeting.title}</CardTitle>
-            <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <CardTitle className="text-2xl font-bold text-gray-900">{meeting.title}</CardTitle>
+            <div className="flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
-                <span className="font-medium">Meeting ID:</span>
-                <code className="px-2 py-1 bg-muted rounded text-xs">{meeting.meeting_id}</code>
+                <Calendar className="w-4 h-4" />
+                {formatDateTime(meeting.created_at)}
               </div>
               <div className="flex items-center gap-1">
-                <span className="font-medium">Session ID:</span>
-                <code className="px-2 py-1 bg-muted rounded text-xs">{meeting.unique_session_id}</code>
+                <Clock className="w-4 h-4" />
+                {duration}
               </div>
             </div>
           </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <div className="text-sm">
-                <div className="font-medium">Created</div>
-                <div className="text-muted-foreground">{formatDate(meeting.created_at)}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <div className="text-sm">
-                <div className="font-medium">Duration</div>
-                <div className="text-muted-foreground">{duration}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <div className="text-sm">
-                <div className="font-medium">Participants</div>
-                <div className="text-muted-foreground">{speakers.length}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-              <div className="text-sm">
-                <div className="font-medium">Messages</div>
-                <div className="text-muted-foreground">{segmentCount}</div>
-              </div>
-            </div>
-          </div>
-
-          {speakers.length > 0 && (
-            <div>
-              <div className="text-sm font-medium mb-2">Speakers:</div>
-              <div className="flex flex-wrap gap-2">
-                {speakers.map((speaker, index) => (
-                  <Badge key={speaker} variant="secondary" className="text-xs">
-                    {speaker}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
+          <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+            Завершена
+          </Badge>
         </div>
       </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
+              <Hash className="w-4 h-4" />
+              ID встречи
+            </div>
+            <p className="text-sm text-gray-600 font-mono">{meeting.meeting_id}</p>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
+              <Users className="w-4 h-4" />
+              Участники
+            </div>
+            <p className="text-sm text-gray-600">{uniqueSpeakers.length} человек</p>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
+              <MessageSquare className="w-4 h-4" />
+              Сообщения
+            </div>
+            <p className="text-sm text-gray-600">{totalMessages} сегментов</p>
+          </div>
+          <div className="space-y-1">
+            <div className="text-sm font-medium text-gray-700">Сессия</div>
+            <p className="text-xs text-gray-500 font-mono break-all">{meeting.unique_session_id}</p>
+          </div>
+        </div>
+
+        {uniqueSpeakers.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="text-sm font-medium text-gray-700 mb-2">Участники встречи:</div>
+            <div className="flex flex-wrap gap-2">
+              {uniqueSpeakers.map((speaker, index) => (
+                <Badge key={speaker} variant="outline" className="text-xs">
+                  {speaker}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
     </Card>
   )
 }
