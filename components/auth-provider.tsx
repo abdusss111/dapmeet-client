@@ -1,7 +1,6 @@
 "use client"
-
-import type React from "react"
-import { createContext, useState, useEffect } from "react"
+import { createContext, useState, useEffect, type ReactNode } from "react"
+import { useRouter, usePathname } from "next/navigation"
 
 interface User {
   id: string
@@ -21,10 +20,12 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     // Check for stored token on mount
@@ -38,20 +39,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false)
   }, [])
 
+  useEffect(() => {
+    const publicRoutes = ["/login", "/privacy", "/"] // add any more public routes here
+    const isPublicPage = publicRoutes.includes(pathname)
+
+    if (!user && !isPublicPage) {
+      router.push("/")
+    } else if (user && pathname === "/login") {
+      router.push("/meetings")
+    }
+  }, [user, loading, pathname, router])
+
   const loginWithGoogle = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+
+    // Add debugging
+    console.log("Google Client ID:", clientId)
+
     if (!clientId) {
-      console.error("Google Client ID not found")
+      console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set!")
+      alert("Google Client ID is not configured. Please check your environment variables.")
       return
     }
 
     const redirectUri = `${window.location.origin}/auth/callback`
     const scope = "openid email profile"
-    const responseType = "code"
-    const state = Math.random().toString(36).substring(7)
 
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=${responseType}&state=${state}`
+    const authUrl =
+      `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${clientId}` +
+      `&redirect_uri=${redirectUri}` +
+      `&response_type=code` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&access_type=offline` +
+      `&prompt=consent`
 
+    console.log("Auth URL:", authUrl)
     window.location.href = authUrl
   }
 
@@ -87,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(null)
     localStorage.removeItem("auth_token")
     localStorage.removeItem("auth_user")
+    router.push("/login")
   }
 
   return (

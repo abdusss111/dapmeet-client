@@ -1,134 +1,96 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useAuth } from "@/hooks/use-auth"
-import { Card, CardContent } from "@/components/ui/card"
+import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
-function AuthCallbackContent() {
-  const router = useRouter()
+function GoogleCallbackContent() {
   const searchParams = useSearchParams()
-  const { setUser, setToken } = useAuth()
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
-  const [message, setMessage] = useState("")
+  const [errorMsg, setErrorMsg] = useState("")
 
   useEffect(() => {
-    const handleCallback = async () => {
-      const code = searchParams.get("code")
-      const error = searchParams.get("error")
+    const code = searchParams.get("code")
 
-      if (error) {
-        setStatus("error")
-        setMessage(`Authentication error: ${error}`)
-        return
-      }
+    if (!code) {
+      setStatus("error")
+      setErrorMsg("Код авторизации не получен из URL")
+      return
+    }
 
-      if (!code) {
-        setStatus("error")
-        setMessage("No authorization code received")
-        return
-      }
-
+    const authenticate = async () => {
       try {
-        const response = await fetch("https://api.dapmeet.kz/api/auth/google", {
+        const res = await fetch(`https://api.dapmeet.kz/auth/google`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code }),
         })
 
-        if (!response.ok) {
-          throw new Error(`Authentication failed: ${response.status}`)
+        if (!res.ok) {
+          const text = await res.text()
+          throw new Error(text)
         }
 
-        const data = await response.json()
+        const data = await res.json()
 
-        if (data.token && data.user) {
-          // Store token and user data
-          localStorage.setItem("auth_token", data.token)
-          localStorage.setItem("auth_user", JSON.stringify(data.user))
+        localStorage.setItem("APP_JWT", data.access_token)
+        localStorage.setItem("dapter_user", JSON.stringify(data.user))
 
-          setStatus("success")
-          setMessage("Authentication successful! Redirecting...")
-
-          // Redirect to dashboard after a short delay
-          setTimeout(() => {
-            router.push("/dashboard")
-          }, 1500)
-        } else {
-          throw new Error("Invalid response from server")
+        const token = localStorage.getItem("APP_JWT")
+        if (token && window.opener) {
+          window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
+          window.close() // безопасно закрываем только если popup
         }
-      } catch (err) {
-        console.error("Auth callback error:", err)
+
+        // Надежный редирект
+        window.location.href = "/meetings"
+      } catch (err: any) {
+        console.error("Ошибка авторизации:", err)
+        setErrorMsg("Не удалось авторизоваться. Попробуйте снова.")
         setStatus("error")
-        setMessage(err instanceof Error ? err.message : "Authentication failed")
       }
     }
 
-    handleCallback()
-  }, [searchParams, router, setUser, setToken])
+    authenticate()
+  }, [searchParams])
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-6">
-          <div className="text-center">
-            {status === "loading" && (
-              <>
-                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                <h2 className="text-lg font-semibold mb-2">Authenticating...</h2>
-                <p className="text-sm text-gray-600">Please wait while we complete your sign-in.</p>
-              </>
-            )}
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
+        <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
+        <p className="text-muted-foreground">Авторизация через Google...</p>
+      </div>
+    )
+  }
 
-            {status === "success" && (
-              <>
-                <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h2 className="text-lg font-semibold mb-2 text-green-800">Success!</h2>
-                <p className="text-sm text-gray-600">{message}</p>
-              </>
-            )}
+  if (status === "error") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 space-y-4">
+        <p className="text-red-500 font-semibold">{errorMsg}</p>
+        <button
+          onClick={() => (window.location.href = "/login")}
+          className="px-4 py-2 bg-slate-900 text-white rounded-md"
+        >
+          Вернуться на страницу входа
+        </button>
+      </div>
+    )
+  }
 
-            {status === "error" && (
-              <>
-                <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-                <h2 className="text-lg font-semibold mb-2 text-red-800">Authentication Failed</h2>
-                <p className="text-sm text-gray-600 mb-4">{message}</p>
-                <button
-                  onClick={() => router.push("/login")}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Try Again
-                </button>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
+  return null
 }
 
-export default function AuthCallbackPage() {
+export default function GoogleCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
+          <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
+          <p className="text-muted-foreground">Загрузка...</p>
         </div>
       }
     >
-      <AuthCallbackContent />
+      <GoogleCallbackContent />
     </Suspense>
   )
 }
