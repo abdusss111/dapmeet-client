@@ -12,10 +12,6 @@ export default function InstructionPage() {
     console.log("Download extension")
   }
 
-  const handleChromeExtensionsClick = () => {
-    window.open("chrome://extensions", "_blank")
-  }
-
   return (
     <DashboardLayout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -63,12 +59,12 @@ export default function InstructionPage() {
                 <p>• Запустите браузер Google Chrome.</p>
                 <p>
                   • В адресной строке введите:{" "}
-                  <button
-                    onClick={handleChromeExtensionsClick}
+                  <a
+                    href="chrome://extensions"
                     className="bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 cursor-pointer text-blue-600 underline"
                   >
                     chrome://extensions
-                  </button>
+                  </a>
                 </p>
                 <div className="my-4">
                   <Image
@@ -83,6 +79,15 @@ export default function InstructionPage() {
                 <p>
                   • В правом верхнем углу включите <strong>Режим разработчика</strong> (Developer mode).
                 </p>
+                <div className="my-4">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_3317845018-IKDPLmFVn7OsArSXbILYsxE2aVZzev.png"
+                    alt="Переключатель режима разработчика"
+                    width={200}
+                    height={50}
+                    className="border rounded"
+                  />
+                </div>
               </div>
               <div className="bg-gray-100 p-4 rounded-lg">
                 <Image
@@ -111,6 +116,15 @@ export default function InstructionPage() {
                 </p>
                 <p>• Укажите путь к распакованной папке с нашим расширением.</p>
                 <p>• После выбора папки расширение автоматически появится в списке установленных.</p>
+                <div className="my-4">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_2568950812-9l4S2w9sN3r2JRj4NdiQyCUXc3vp4C.png"
+                    alt="Кнопка Загрузить распакованное расширение"
+                    width={400}
+                    height={100}
+                    className="border rounded"
+                  />
+                </div>
               </div>
               <div className="bg-gray-100 p-4 rounded-lg">
                 <Image
@@ -139,6 +153,15 @@ export default function InstructionPage() {
                   почту)
                 </p>
                 <p>• Если иконки не видно — нажмите на значок пазла 🧩 и закрепите расширение.</p>
+                <div className="my-4">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_3816979113-Cok5c9RLQzKqlQSriNO4QaHWGDKQlW.png"
+                    alt="Выпадающее меню расширений Chrome с Dapmeet"
+                    width={300}
+                    height={200}
+                    className="border rounded"
+                  />
+                </div>
               </div>
               <div className="bg-gray-100 p-4 rounded-lg">
                 <Image
