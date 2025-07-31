@@ -12,6 +12,10 @@ export default function InstructionPage() {
     console.log("Download extension")
   }
 
+  const handleChromeExtensionsClick = () => {
+    window.open("chrome://extensions", "_blank")
+  }
+
   return (
     <DashboardLayout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -43,15 +47,6 @@ export default function InstructionPage() {
                 <p>• После скачивания у вас появится архив (.zip).</p>
                 <p>• Распакуйте архив в удобную папку на компьютере.</p>
               </div>
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <Image
-                  src="/placeholder.svg?height=200&width=400&text=Скачивание+архива"
-                  alt="Скачивание архива"
-                  width={400}
-                  height={200}
-                  className="mx-auto"
-                />
-              </div>
             </CardContent>
           </Card>
 
@@ -68,8 +63,22 @@ export default function InstructionPage() {
                 <p>• Запустите браузер Google Chrome.</p>
                 <p>
                   • В адресной строке введите:{" "}
-                  <code className="bg-gray-100 px-2 py-1 rounded">chrome://extensions</code>
+                  <button
+                    onClick={handleChromeExtensionsClick}
+                    className="bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 cursor-pointer text-blue-600 underline"
+                  >
+                    chrome://extensions
+                  </button>
                 </p>
+                <div className="my-4">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_647113129-rK6TQQBOReEf98H0LQbXxkFQUyX12K.png"
+                    alt="Адресная строка Chrome с chrome://extensions"
+                    width={400}
+                    height={50}
+                    className="border rounded"
+                  />
+                </div>
                 <p>• Или в настройках Google Chrome: "Расширения" - "Управления расширениями"</p>
                 <p>
                   • В правом верхнем углу включите <strong>Режим разработчика</strong> (Developer mode).
