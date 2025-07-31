@@ -17,6 +17,28 @@ export function AIChat({ meetingId, meetingTitle, transcript }: AIChatProps) {
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([])
   const [isLoading, setIsLoading] = useState(false)
 
+  const saveChatMessage = async (sender: string, content: string) => {
+    try {
+      const token = localStorage.getItem("APP_JWT")
+      if (!token) return
+
+      await fetch("https://api.dapmeet.kz/api/chat/history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          sender,
+          content,
+          created_at: new Date().toISOString(),
+        }),
+      })
+    } catch (error) {
+      console.error("Error saving chat message:", error)
+    }
+  }
+
   const handleSend = async () => {
     if (!message.trim()) return
 
@@ -24,6 +46,9 @@ export function AIChat({ meetingId, meetingTitle, transcript }: AIChatProps) {
     setMessage("")
     setMessages((prev) => [...prev, { role: "user", content: userMessage }])
     setIsLoading(true)
+
+    // Save user message
+    await saveChatMessage("user", userMessage)
 
     try {
       const response = await fetch("/api/chat", {
@@ -40,13 +65,19 @@ export function AIChat({ meetingId, meetingTitle, transcript }: AIChatProps) {
       if (!response.ok) throw new Error("Failed to send message")
 
       const data = await response.json()
-      setMessages((prev) => [...prev, { role: "assistant", content: data.text }])
+      const assistantMessage = data.text
+
+      setMessages((prev) => [...prev, { role: "assistant", content: assistantMessage }])
+
+      // Save assistant message
+      await saveChatMessage("assistant", assistantMessage)
     } catch (error) {
       console.error("Error sending message:", error)
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Извините, произошла ошибка при обработке вашего запроса." },
-      ])
+      const errorMessage = "Извините, произошла ошибка при обработке вашего запроса."
+      setMessages((prev) => [...prev, { role: "assistant", content: errorMessage }])
+
+      // Save error message
+      await saveChatMessage("assistant", errorMessage)
     } finally {
       setIsLoading(false)
     }
