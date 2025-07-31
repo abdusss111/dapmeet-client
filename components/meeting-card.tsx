@@ -14,10 +14,13 @@ interface MeetingCardProps {
 export function MeetingCard({ meeting }: MeetingCardProps) {
   const { user } = useAuth()
 
-  // Filter out current user from speakers list
+  // Filter out current user from speakers list for display
   const otherSpeakers = meeting.speakers?.filter((speaker) => speaker !== user?.name) || []
   const speakersToShow = otherSpeakers.slice(0, 3)
   const remainingCount = otherSpeakers.length - speakersToShow.length
+
+  // Total speakers count includes current user
+  const totalSpeakersCount = meeting.speakers?.length || 0
 
   const speakersText =
     speakersToShow.length > 0
@@ -47,7 +50,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
             <div className="flex items-center text-sm text-gray-600">
               <Users className="w-4 h-4 mr-2 flex-shrink-0" />
               <span className="truncate">
-                {otherSpeakers.length} участников: {speakersText}
+                {totalSpeakersCount} участников: {speakersText}
               </span>
             </div>
           </div>
