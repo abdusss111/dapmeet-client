@@ -22,21 +22,18 @@ export default function Home() {
         {/* Logo */}
         <div className="flex justify-center">
           <object
-            data="/dap.svg"
-            type="image/svg+xml"
+            data="/dapmeet-logo.png"
+            type="image/png"
             className="h-auto w-auto rounded-2xl shadow-md border border-slate-400 dark:border-slate-400"
           >
             {/* fallback на случай, если object не загрузится */}
-            <img src="/dap.svg" alt="Dapmeet.AI Logo" className="h-auto w-auto object-contain" />
+            <img src="/dapmeet-logo.png" alt="Dapmeet Logo" className="h-auto w-auto object-contain" />
           </object>
         </div>
 
         {/* Title */}
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl mb-2">Dapmeet</h1>
-          <p className="text-lg text-muted-foreground">
-            Анализируйте и извлекайте ценные идеи, моменты из ваших онлайн-встреч
-          </p>
         </div>
 
         {/* CTA */}
