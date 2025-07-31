@@ -12,8 +12,8 @@ export const metadata: Metadata = {
   title: "Dapmeet",
   description: "Платформа для анализа встреч",
   icons: {
-    icon: "/dapmeet-logo.png", // rel="icon"
-    shortcut: "/dapmeet-logo.png", // rel="shortcut icon"
+    icon: "/favicon.ico", // rel="icon"
+    shortcut: "/favicon.ico", // rel="shortcut icon"
     // apple: "/apple-touch-icon.png" // if you add an Apple touch icon
   },
     generator: 'v0.dev'
