@@ -39,7 +39,7 @@ export function MeetingControls({
   return (
     <Card className="bg-white border-gray-200">
       <CardHeader>
-        <CardTitle className="text-lg">Управление транскриптом</CardTitle>
+        <CardTitle className="text-lg">Найти реплику</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Search */}
@@ -72,7 +72,7 @@ export function MeetingControls({
 
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-1 bg-transparent">
             <Download className="w-4 h-4" />
-            Экспорт
+            Экспорт транскрипта
           </Button>
 
           {(searchQuery || selectedSpeakers.length > 0) && (

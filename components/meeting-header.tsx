@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Users, MessageSquare, Hash } from "lucide-react"
+import { Calendar, Clock, Users, MessageSquare } from "lucide-react"
 import { formatDateTime, calculateDuration, getUniqueSpeakers } from "@/lib/meeting-utils"
 import type { Meeting } from "@/lib/types"
 
@@ -32,20 +32,10 @@ export function MeetingHeader({ meeting }: MeetingHeaderProps) {
               </div>
             </div>
           </div>
-          <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
-            Завершена
-          </Badge>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
-              <Hash className="w-4 h-4" />
-              ID встречи
-            </div>
-            <p className="text-sm text-gray-600 font-mono">{meeting.meeting_id}</p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
               <Users className="w-4 h-4" />
@@ -56,13 +46,9 @@ export function MeetingHeader({ meeting }: MeetingHeaderProps) {
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
               <MessageSquare className="w-4 h-4" />
-              Сообщения
+              Реплики
             </div>
             <p className="text-sm text-gray-600">{totalMessages} сегментов</p>
-          </div>
-          <div className="space-y-1">
-            <div className="text-sm font-medium text-gray-700">Сессия</div>
-            <p className="text-xs text-gray-500 font-mono break-all">{meeting.unique_session_id}</p>
           </div>
         </div>
 
