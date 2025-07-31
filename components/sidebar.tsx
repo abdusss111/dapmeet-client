@@ -11,7 +11,7 @@ export function Sidebar() {
   const navigation = [
     /*  { name: "Панель управления", href: "/dashboard", icon: Home },*/
     { name: "Встречи", href: "/meetings", icon: MessageSquare },
-    { name: "Инструкция", href: "/instruction", icon: BookOpen },
+    { name: "Установка", href: "/instruction", icon: BookOpen },
     /* { name: "Календарь", href: "/calendar", icon: Calendar },*/
     /*{ name: "Участники", href: "/participants", icon: Users },*/
     /*{ name: "Настройки", href: "/settings", icon: Settings },*/

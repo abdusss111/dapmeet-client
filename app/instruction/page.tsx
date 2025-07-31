@@ -67,7 +67,9 @@ export default function InstructionPage() {
                     chrome://extensions
                   </a>
                 </p>
-                <div className="my-4">
+
+                <br />
+                <div className="mt-6">
                   <Image
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_647113129-rK6TQQBOReEf98H0LQbXxkFQUyX12K.png"
                     alt="Адресная строка Chrome с chrome://extensions"
@@ -76,11 +78,14 @@ export default function InstructionPage() {
                     className="border rounded"
                   />
                 </div>
+
                 <p>• Или в настройках Google Chrome: "Расширения" - "Управления расширениями"</p>
                 <p>
                   • В правом верхнем углу включите <strong>Режим разработчика</strong> (Developer mode).
                 </p>
-                <div className="my-4">
+
+                <br />
+                <div className="mt-6">
                   <Image
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_3317845018-IKDPLmFVn7OsArSXbILYsxE2aVZzev.png"
                     alt="Переключатель режима разработчика"
@@ -109,7 +114,9 @@ export default function InstructionPage() {
                 </p>
                 <p>• Укажите путь к распакованной папке с нашим расширением.</p>
                 <p>• После выбора папки расширение автоматически появится в списке установленных.</p>
-                <div className="my-4">
+
+                <br />
+                <div className="mt-6">
                   <Image
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_2568950812-9l4S2w9sN3r2JRj4NdiQyCUXc3vp4C.png"
                     alt="Кнопка Загрузить распакованное расширение"
@@ -138,7 +145,9 @@ export default function InstructionPage() {
                   почту)
                 </p>
                 <p>• Если иконки не видно — нажмите на значок пазла и закрепите расширение.</p>
-                <div className="my-4">
+
+                <br />
+                <div className="mt-6">
                   <Image
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_3816979113-Cok5c9RLQzKqlQSriNO4QaHWGDKQlW.png"
                     alt="Выпадающее меню расширений Chrome с Dapmeet"
