@@ -12,9 +12,15 @@ export const metadata: Metadata = {
   title: "Dapmeet",
   description: "Платформа для анализа встреч",
   icons: {
-    icon: "/favicon.ico", // rel="icon"
-    shortcut: "/favicon.ico", // rel="shortcut icon"
-    // apple: "/apple-touch-icon.png" // if you add an Apple touch icon
+    icon: [
+      {
+        url: "/favicon.png",
+        sizes: "128x128",
+        type: "image/png",
+      },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
     generator: 'v0.dev'
 }

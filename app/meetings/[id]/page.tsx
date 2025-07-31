@@ -148,6 +148,12 @@ export default function MeetingDetailPage() {
         <div className="space-y-6">
           <MeetingHeader meeting={meeting} />
 
+          <AIChat
+            meetingId={meeting.unique_session_id}
+            meetingTitle={meeting.title}
+            transcript={formatTranscript(meeting)}
+          />
+
           <MeetingControls
             meeting={meeting}
             searchQuery={searchQuery}
@@ -156,11 +162,6 @@ export default function MeetingDetailPage() {
             onSpeakerToggle={handleSpeakerToggle}
           />
 
-          <AIChat
-            meetingId={meeting.unique_session_id}
-            meetingTitle={meeting.title}
-            transcript={formatTranscript(meeting)}
-          />
 
           <TranscriptView meeting={meeting} searchQuery={searchQuery} selectedSpeakers={selectedSpeakers} />
         </div>
