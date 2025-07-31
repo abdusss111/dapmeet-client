@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -7,11 +10,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['localhost', 'api.example.com'],
+    domains: ['api.dapmeet.kz'],
     unoptimized: true,
-  },
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
   },
 }
 

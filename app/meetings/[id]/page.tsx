@@ -8,7 +8,7 @@ import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { MeetingDetails } from "@/components/meeting-details"
 import { AIChat } from "@/components/ai-chat"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { MeetingControls } from "@/components/meeting-controls"
 import type { Meeting } from "@/lib/types"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.dapmeet.kz"
@@ -20,6 +20,12 @@ export default function MeetingDetailPage() {
   const [meeting, setMeeting] = useState<Meeting | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedSpeakers, setSelectedSpeakers] = useState<string[]>([])
+
+  const handleSpeakerToggle = (speaker: string) => {
+    setSelectedSpeakers((prev) => (prev.includes(speaker) ? prev.filter((s) => s !== speaker) : [...prev, speaker]))
+  }
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -126,36 +132,36 @@ export default function MeetingDetailPage() {
 
   return (
     <DashboardLayout>
-    <div className="space-y-6">
-      {/* Navigation */}
-      <div className="flex items-center gap-4">
-        <Link href="/meetings">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад к встречам
-          </Button>
-        </Link>
+      <div className="space-y-6">
+        {/* Navigation */}
+        <div className="flex items-center gap-4">
+          <Link href="/meetings">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Назад к встречам
+            </Button>
+          </Link>
+        </div>
+
+        {/* Meeting Details */}
+        <MeetingDetails meeting={meeting} />
+
+        {/* Meeting Controls (Search & Filtering) */}
+        <MeetingControls
+          meeting={meeting}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedSpeakers={selectedSpeakers}
+          onSpeakerToggle={handleSpeakerToggle}
+        />
+
+        {/* AI Chat */}
+        <AIChat
+          meetingId={meeting.unique_session_id}
+          meetingTitle={meeting.title}
+          transcript={formatTranscript(meeting)}
+        />
       </div>
-
-      {/* Meeting Details */}
-      <MeetingDetails meeting={meeting} />
-
-      {/* Meeting Controls (Search & Filtering) */}
-      <MeetingControls
-        meeting={meeting}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedSpeakers={selectedSpeakers}
-        onSpeakerToggle={handleSpeakerToggle}
-      />
-
-      {/* AI Chat */}
-      <AIChat
-        meetingId={meeting.unique_session_id}
-        meetingTitle={meeting.title}
-        transcript={formatTranscript(meeting)}
-      />
-    </div>
-  </DashboardLayout>
+    </DashboardLayout>
   )
 }
