@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { MeetingDetails } from "@/components/meeting-details"
+import { MeetingHeader } from "@/components/meeting-header"
+import { MeetingControls } from "@/components/meeting-controls"
+import { TranscriptView } from "@/components/transcript-view"
 import { AIChat } from "@/components/ai-chat"
 import type { Meeting } from "@/lib/types"
 
@@ -19,6 +21,12 @@ export default function MeetingDetailPage() {
   const [meeting, setMeeting] = useState<Meeting | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedSpeakers, setSelectedSpeakers] = useState<string[]>([])
+
+  const handleSpeakerToggle = (speaker: string) => {
+    setSelectedSpeakers((prev) => (prev.includes(speaker) ? prev.filter((s) => s !== speaker) : [...prev, speaker]))
+  }
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -138,12 +146,23 @@ export default function MeetingDetailPage() {
 
         {/* Content */}
         <div className="space-y-6">
-          <MeetingDetails meeting={meeting} />
+          <MeetingHeader meeting={meeting} />
+
+          <MeetingControls
+            meeting={meeting}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedSpeakers={selectedSpeakers}
+            onSpeakerToggle={handleSpeakerToggle}
+          />
+
           <AIChat
             meetingId={meeting.unique_session_id}
             meetingTitle={meeting.title}
             transcript={formatTranscript(meeting)}
           />
+
+          <TranscriptView meeting={meeting} searchQuery={searchQuery} selectedSpeakers={selectedSpeakers} />
         </div>
       </div>
     </DashboardLayout>
