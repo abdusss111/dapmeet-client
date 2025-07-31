@@ -7,8 +7,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ["lh3.googleusercontent.com"],
+    domains: ['localhost', 'api.example.com'],
     unoptimized: true,
+  },
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
   },
 }
 
