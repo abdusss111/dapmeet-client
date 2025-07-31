@@ -75,7 +75,7 @@ export default function GoogleCallbackPage() {
           onClick={() => (window.location.href = "/login")}
           className="px-4 py-2 bg-slate-900 text-white rounded-md"
         >
-          Вернуться на страницу входа
+          Верну��ься на страницу входа
         </button>
       </div>
     )

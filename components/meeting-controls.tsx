@@ -72,7 +72,7 @@ export function MeetingControls({
 
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-1 bg-transparent">
             <Download className="w-4 h-4" />
-            Экспорт транскрипта
+            Экспорт реплик
           </Button>
 
           {(searchQuery || selectedSpeakers.length > 0) && (

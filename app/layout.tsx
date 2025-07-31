@@ -12,11 +12,10 @@ export const metadata: Metadata = {
   title: "Dapmeet",
   description: "Платформа для анализа встреч",
   icons: {
-    icon: "/favicon.png",       // rel="icon"
-    shortcut: "/favicon.png",   // rel="shortcut icon"
+    icon: "/dapmeet-logo.png", // rel="icon"
+    shortcut: "/dapmeet-logo.png", // rel="shortcut icon"
     // apple: "/apple-touch-icon.png" // if you add an Apple touch icon
-      
-      },
+  },
     generator: 'v0.dev'
 }
 
@@ -30,9 +29,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <Suspense fallback={<div className="text-center p-8">Загрузка...</div>}>
-              {children}
-            </Suspense>
+            <Suspense fallback={<div className="text-center p-8">Загрузка...</div>}>{children}</Suspense>
             <footer className="border-t p-4 text-center text-sm text-muted-foreground">
               {/* move links out of head */}
               <a href="/privacy" className="hover:underline">

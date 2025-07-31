@@ -46,9 +46,9 @@ export function MeetingHeader({ meeting }: MeetingHeaderProps) {
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-sm font-medium text-gray-700">
               <MessageSquare className="w-4 h-4" />
-              Реплики
+              Сказано
             </div>
-            <p className="text-sm text-gray-600">{totalMessages} сегментов</p>
+            <p className="text-sm text-gray-600">{totalMessages} реплик</p>
           </div>
         </div>
 
