@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Search, Download, Filter, X } from "lucide-react"
-import { getUniqueSpeakers, exportTranscript } from "@/lib/meeting-utils"
+import { Search, Download, X, Filter } from "lucide-react"
+import { exportTranscript, getUniqueSpeakers } from "@/lib/meeting-utils"
 import type { Meeting } from "@/lib/types"
 
 interface MeetingControlsProps {
@@ -24,109 +24,108 @@ export function MeetingControls({
   selectedSpeakers,
   onSpeakerToggle,
 }: MeetingControlsProps) {
-  const [showSpeakerFilter, setShowSpeakerFilter] = useState(false)
-  const uniqueSpeakers = getUniqueSpeakers(meeting.segments)
+  const [showFilters, setShowFilters] = useState(false)
+  const speakers = getUniqueSpeakers(meeting.segments || [])
 
   const handleExport = () => {
-    exportTranscript(meeting.segments, meeting.title)
+    exportTranscript(meeting)
   }
 
   const clearFilters = () => {
     onSearchChange("")
-    selectedSpeakers.forEach((speaker) => onSpeakerToggle(speaker))
+    speakers.forEach((speaker) => {
+      if (selectedSpeakers.includes(speaker)) {
+        onSpeakerToggle(speaker)
+      }
+    })
   }
 
+  const hasActiveFilters = searchQuery || selectedSpeakers.length > 0
+
   return (
-    <Card className="bg-white border-gray-200">
-      <CardHeader>
-        <CardTitle className="text-lg">Управление транскриптом</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            placeholder="Поиск по тексту или имени участника..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
-        {/* Controls */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSpeakerFilter(!showSpeakerFilter)}
-            className="gap-1"
-          >
-            <Filter className="w-4 h-4" />
-            Фильтр участников
-            {selectedSpeakers.length > 0 && (
-              <Badge variant="secondary" className="ml-1">
-                {selectedSpeakers.length}
-              </Badge>
-            )}
-          </Button>
-
-          <Button variant="outline" size="sm" onClick={handleExport} className="gap-1 bg-transparent">
-            <Download className="w-4 h-4" />
-            Экспорт
-          </Button>
-
-          {(searchQuery || selectedSpeakers.length > 0) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFilters}
-              className="gap-1 text-red-600 hover:text-red-700 bg-transparent"
-            >
-              <X className="w-4 h-4" />
-              Очистить фильтры
-            </Button>
-          )}
-        </div>
-
-        {/* Speaker Filter */}
-        {showSpeakerFilter && (
-          <div className="border-t pt-4">
-            <div className="text-sm font-medium text-gray-700 mb-2">Выберите участников:</div>
-            <div className="flex flex-wrap gap-2">
-              {uniqueSpeakers.map((speaker) => (
-                <Badge
-                  key={speaker}
-                  variant={selectedSpeakers.includes(speaker) ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-gray-100"
-                  onClick={() => onSpeakerToggle(speaker)}
-                >
-                  {speaker}
-                </Badge>
-              ))}
+    <Card className="mb-6">
+      <CardContent className="pt-6">
+        <div className="flex flex-col gap-4">
+          {/* Search and main controls */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search transcript..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2"
+              >
+                <Filter className="h-4 w-4" />
+                Filters
+                {hasActiveFilters && (
+                  <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 text-xs">
+                    {(searchQuery ? 1 : 0) + selectedSpeakers.length}
+                  </Badge>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExport}
+                className="flex items-center gap-2 bg-transparent"
+              >
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
             </div>
           </div>
-        )}
 
-        {/* Active Filters Display */}
-        {(searchQuery || selectedSpeakers.length > 0) && (
-          <div className="border-t pt-4">
-            <div className="text-sm font-medium text-gray-700 mb-2">Активные фильтры:</div>
-            <div className="flex flex-wrap gap-2">
+          {/* Active filters display */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted-foreground">Active filters:</span>
               {searchQuery && (
-                <Badge variant="secondary" className="gap-1">
-                  Поиск: "{searchQuery}"
-                  <X className="w-3 h-3 cursor-pointer hover:text-red-600" onClick={() => onSearchChange("")} />
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  Search: "{searchQuery}"
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => onSearchChange("")} />
                 </Badge>
               )}
               {selectedSpeakers.map((speaker) => (
-                <Badge key={speaker} variant="secondary" className="gap-1">
+                <Badge key={speaker} variant="secondary" className="flex items-center gap-1">
                   {speaker}
-                  <X className="w-3 h-3 cursor-pointer hover:text-red-600" onClick={() => onSpeakerToggle(speaker)} />
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => onSpeakerToggle(speaker)} />
                 </Badge>
               ))}
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-6 px-2 text-xs">
+                Clear all
+              </Button>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Speaker filters */}
+          {showFilters && speakers.length > 0 && (
+            <div className="border-t pt-4">
+              <div className="text-sm font-medium mb-2">Filter by speaker:</div>
+              <div className="flex flex-wrap gap-2">
+                {speakers.map((speaker) => (
+                  <Button
+                    key={speaker}
+                    variant={selectedSpeakers.includes(speaker) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => onSpeakerToggle(speaker)}
+                    className="text-xs"
+                  >
+                    {speaker}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   )

@@ -1,169 +1,129 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { DashboardLayout } from "@/components/dashboard-layout"
+import { useParams } from "next/navigation"
 import { MeetingDetails } from "@/components/meeting-details"
-import { AIChat } from "@/components/ai-chat"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { Meeting } from "@/lib/types"
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.dapmeet.kz"
 
 export default function MeetingDetailPage() {
   const params = useParams()
-  const router = useRouter()
-  const meetingId = params.id as string
   const [meeting, setMeeting] = useState<Meeting | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchMeeting = async () => {
-      try {
-        const token = localStorage.getItem("APP_JWT")
-        if (!token) {
-          setError("Токен авторизации не найден")
-          return
-        }
+      if (!params.id) return
 
-        const response = await fetch(`${API_URL}/api/meetings/${meetingId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
+      try {
+        setLoading(true)
+        setError(null)
+
+        const response = await fetch(`https://api.dapmeet.kz/api/meetings/${params.id}`)
 
         if (!response.ok) {
-          throw new Error(`Ошибка ${response.status}: ${response.statusText}`)
+          throw new Error(`Failed to fetch meeting: ${response.status}`)
         }
 
         const data = await response.json()
-        setMeeting(data)
+
+        // Ensure segments is always an array
+        const meetingData: Meeting = {
+          ...data,
+          segments: Array.isArray(data.segments) ? data.segments : [],
+        }
+
+        setMeeting(meetingData)
       } catch (err) {
-        console.error("Ошибка загрузки встречи:", err)
-        setError(err instanceof Error ? err.message : "Неизвестная ошибка")
+        console.error("Error fetching meeting:", err)
+        setError(err instanceof Error ? err.message : "Failed to load meeting")
       } finally {
         setLoading(false)
       }
     }
 
-    if (meetingId) {
-      fetchMeeting()
-    }
-  }, [meetingId])
-
-  const formatTranscript = (meeting: Meeting): string => {
-    if (!meeting.segments || meeting.segments.length === 0) return ""
-
-    const sortedSegments = [...meeting.segments].sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-    )
-
-    return sortedSegments
-      .map((segment) => {
-        const time = new Date(segment.timestamp).toLocaleTimeString("ru-RU", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-        return `${time}, ${segment.speaker_username}: ${segment.text}`
-      })
-      .join("\n")
-  }
+    fetchMeeting()
+  }, [params.id])
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Загрузка встречи...</p>
-          </div>
-        </div>
-      </DashboardLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <Skeleton className="h-8 w-64 mb-4" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-6 w-20" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <Skeleton className="h-10 w-full mb-4" />
+            <div className="flex gap-2">
+              <Skeleton className="h-8 w-20" />
+              <Skeleton className="h-8 w-20" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-0">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="p-4 border-b last:border-b-0">
+                <div className="flex gap-3">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex gap-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">{error}</p>
-            <Link href="/meetings">
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Вернуться к встречам
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </DashboardLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <div className="text-red-600 mb-2">Error loading meeting</div>
+            <div className="text-muted-foreground text-sm">{error}</div>
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 
   if (!meeting) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">Встреча не найдена</p>
-            <Link href="/meetings">
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Вернуться к встречам
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </DashboardLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Card>
+          <CardContent className="pt-6 text-center text-muted-foreground">Meeting not found</CardContent>
+        </Card>
+      </div>
     )
   }
 
-  return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Navigation */}
-        <div className="flex items-center gap-4">
-          <Link href="/meetings">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад к встречам
-            </Button>
-          </Link>
-        </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="transcript" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="transcript">Транскрипт</TabsTrigger>
-            <TabsTrigger value="ai">ИИ Анализ</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="transcript" className="space-y-6">
-            <MeetingDetails meeting={meeting} />
-          </TabsContent>
-
-          <TabsContent value="ai" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <MeetingDetails meeting={meeting} />
-              </div>
-              <div className="lg:sticky lg:top-6">
-                <AIChat
-                  meetingId={meeting.unique_session_id}
-                  meetingTitle={meeting.title}
-                  transcript={formatTranscript(meeting)}
-                />
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </DashboardLayout>
-  )
+  return <MeetingDetails meeting={meeting} />
 }

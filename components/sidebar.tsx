@@ -9,11 +9,11 @@ export function Sidebar() {
   const pathname = usePathname()
 
   const navigation = [
-    { name: "Панель управления", href: "/dashboard", icon: Home },
+   /*  { name: "Панель управления", href: "/dashboard", icon: Home },*/
     { name: "Встречи", href: "/meetings", icon: MessageSquare },
-    { name: "Календарь", href: "/calendar", icon: Calendar },
-    { name: "Участники", href: "/participants", icon: Users },
-    { name: "Настройки", href: "/settings", icon: Settings },
+    /* { name: "Календарь", href: "/calendar", icon: Calendar },*/
+    /*{ name: "Участники", href: "/participants", icon: Users },*/
+/*{ name: "Настройки", href: "/settings", icon: Settings },*/
   ]
 
   return (
