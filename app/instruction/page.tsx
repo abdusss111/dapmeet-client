@@ -8,7 +8,10 @@ import Image from "next/image"
 
 export default function InstructionPage() {
   const handleDownload = () => {
-    window.open("/dapmeet.zip", "_blank")
+    window.open(
+      "https://drive.usercontent.google.com/u/0/uc?id=1OuUuyNuQohWNrbrnO2xdUEYP6GOHi_TN&export=download",
+      "_blank",
+    )
   }
 
   return (
