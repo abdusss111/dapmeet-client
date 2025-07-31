@@ -8,7 +8,6 @@ import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { MeetingDetails } from "@/components/meeting-details"
 import { AIChat } from "@/components/ai-chat"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Meeting } from "@/lib/types"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.dapmeet.kz"
@@ -137,32 +136,15 @@ export default function MeetingDetailPage() {
           </Link>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="transcript" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="transcript">Транскрипт</TabsTrigger>
-            <TabsTrigger value="ai">ИИ Анализ</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="transcript" className="space-y-6">
-            <MeetingDetails meeting={meeting} />
-          </TabsContent>
-
-          <TabsContent value="ai" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <MeetingDetails meeting={meeting} />
-              </div>
-              <div className="lg:sticky lg:top-6">
-                <AIChat
-                  meetingId={meeting.unique_session_id}
-                  meetingTitle={meeting.title}
-                  transcript={formatTranscript(meeting)}
-                />
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+        {/* Content */}
+        <div className="space-y-6">
+          <MeetingDetails meeting={meeting} />
+          <AIChat
+            meetingId={meeting.unique_session_id}
+            meetingTitle={meeting.title}
+            transcript={formatTranscript(meeting)}
+          />
+        </div>
       </div>
     </DashboardLayout>
   )
