@@ -30,7 +30,8 @@ export default function InstructionPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Download className="w-5 h-5" />📥 Шаг 1. Скачайте расширение
+                <Download className="w-5 h-5" />
+                Шаг 1. Скачайте расширение
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -51,7 +52,7 @@ export default function InstructionPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
-                ⚙️ Шаг 2. Откройте настройки расширений в Chrome
+                Шаг 2. Откройте настройки расширений в Chrome
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -89,15 +90,6 @@ export default function InstructionPage() {
                   />
                 </div>
               </div>
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <Image
-                  src="/placeholder.svg?height=200&width=400&text=Настройки+расширений"
-                  alt="Настройки расширений Chrome"
-                  width={400}
-                  height={200}
-                  className="mx-auto"
-                />
-              </div>
             </CardContent>
           </Card>
 
@@ -105,7 +97,8 @@ export default function InstructionPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Folder className="w-5 h-5" />📂 Шаг 3. Установите расширение
+                <Folder className="w-5 h-5" />
+                Шаг 3. Установите расширение
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -126,15 +119,6 @@ export default function InstructionPage() {
                   />
                 </div>
               </div>
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <Image
-                  src="/placeholder.svg?height=200&width=400&text=Загрузка+расширения"
-                  alt="Загрузка расширения"
-                  width={400}
-                  height={200}
-                  className="mx-auto"
-                />
-              </div>
             </CardContent>
           </Card>
 
@@ -142,7 +126,8 @@ export default function InstructionPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Puzzle className="w-5 h-5" />🧩 Шаг 4. Проверьте работу
+                <Puzzle className="w-5 h-5" />
+                Шаг 4. Проверьте работу
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -152,7 +137,7 @@ export default function InstructionPage() {
                   • Нажмите на неё, чтобы запустить расширение, там потребуется авторизация через Google аккаунт (gmail
                   почту)
                 </p>
-                <p>• Если иконки не видно — нажмите на значок пазла 🧩 и закрепите расширение.</p>
+                <p>• Если иконки не видно — нажмите на значок пазла и закрепите расширение.</p>
                 <div className="my-4">
                   <Image
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tg_image_3816979113-Cok5c9RLQzKqlQSriNO4QaHWGDKQlW.png"
@@ -163,15 +148,6 @@ export default function InstructionPage() {
                   />
                 </div>
               </div>
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <Image
-                  src="/placeholder.svg?height=200&width=400&text=Проверка+работы"
-                  alt="Проверка работы расширения"
-                  width={400}
-                  height={200}
-                  className="mx-auto"
-                />
-              </div>
             </CardContent>
           </Card>
 
@@ -179,7 +155,8 @@ export default function InstructionPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />✅ Шаг 5. Всё готово!
+                <CheckCircle className="w-5 h-5" />
+                Шаг 5. Всё готово!
               </CardTitle>
             </CardHeader>
             <CardContent>
