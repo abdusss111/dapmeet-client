@@ -8,8 +8,12 @@ import Image from "next/image"
 
 export default function InstructionPage() {
   const handleDownload = () => {
-    // TODO: Add actual download link
-    console.log("Download extension")
+    const link = document.createElement("a")
+    link.href = "/dapmeet.zip"
+    link.download = "dapmeet.zip"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
