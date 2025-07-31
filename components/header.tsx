@@ -18,7 +18,7 @@ interface HeaderProps {
   onToggleSidebar?: () => void
 }
 
-export default function Header({ onToggleSidebar }: HeaderProps) {
+export function Header({ onToggleSidebar }: HeaderProps) {
   const { user, logout } = useAuth()
 
   const initials = user?.name
@@ -65,3 +65,5 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
     </header>
   )
 }
+
+export default Header
