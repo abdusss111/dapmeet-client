@@ -31,37 +31,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("dapter_user")
+    // Быстрая проверка сохраненного пользователя
+    const checkStoredUser = () => {
+      try {
+        const storedUser = localStorage.getItem("dapter_user")
+        const token = localStorage.getItem("APP_JWT")
 
-    try {
-      if (storedUser) {
-        setUser(JSON.parse(storedUser))
+        if (storedUser && token) {
+          const parsedUser = JSON.parse(storedUser)
+          setUser(parsedUser)
+        }
+      } catch (err) {
+        console.error("Ошибка чтения пользователя:", err)
+        // Очищаем поврежденные данные
+        localStorage.removeItem("dapter_user")
+        localStorage.removeItem("APP_JWT")
+      } finally {
+        setIsLoading(false)
       }
-    } catch (err) {
-      console.error("Ошибка чтения пользователя:", err)
     }
 
-    setIsLoading(false)
+    checkStoredUser()
   }, [])
 
   useEffect(() => {
     if (!isLoading) {
-      const publicRoutes = ["/login", "/privacy", "/"] // add any more public routes here
+      const publicRoutes = ["/login", "/privacy", "/", "/auth/callback"]
       const isPublicPage = publicRoutes.includes(pathname)
 
       if (!user && !isPublicPage) {
-        router.push("/")
+        router.replace("/")
       } else if (user && pathname === "/login") {
-        router.push("/meetings")
+        router.replace("/meetings")
       }
     }
   }, [user, isLoading, pathname, router])
 
   const loginWithGoogle = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-
-    // Add debugging
-    console.log("Google Client ID:", clientId)
 
     if (!clientId) {
       console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set!")
@@ -81,7 +88,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       `&access_type=offline` +
       `&prompt=consent`
 
-    console.log("Auth URL:", authUrl)
     window.location.href = authUrl
   }
 
@@ -89,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
     localStorage.removeItem("dapter_user")
     localStorage.removeItem("APP_JWT")
-    router.push("/login")
+    router.replace("/login")
   }
 
   return <AuthContext.Provider value={{ user, isLoading, loginWithGoogle, logout }}>{children}</AuthContext.Provider>

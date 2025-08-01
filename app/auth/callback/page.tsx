@@ -35,18 +35,22 @@ export default function GoogleCallbackPage() {
 
         const data = await res.json()
 
+        // Сохраняем данные пользователя
         localStorage.setItem("APP_JWT", data.access_token)
         localStorage.setItem("dapter_user", JSON.stringify(data.user))
- 	const token = localStorage.getItem("APP_JWT")
-  	    if (token && window.opener) {
-    	    window.opener.postMessage(
-      		{ token },
-      		"chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc"
-    		);
-    window.close(); // безопасно закрываем только если popup
-  }
 
-        // Надежный редирект
+        // Отправляем токен в расширение если это popup
+        const token = localStorage.getItem("APP_JWT")
+        if (token && window.opener) {
+          window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
+          window.close() // безопасно закрываем только если popup
+          return // Выходим, чтобы не делать редирект
+        }
+
+        // Устанавливаем успешный статус перед редиректом
+        setStatus("success")
+
+        // Немедленный редирект без задержки
         window.location.href = "/meetings"
       } catch (err: any) {
         console.error("Ошибка авторизации:", err)
@@ -60,23 +64,50 @@ export default function GoogleCallbackPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-center">
-        <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
-        <p className="text-muted-foreground">Авторизация через Google...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="bg-white p-8 rounded-2xl shadow-lg">
+          <Loader2 className="animate-spin w-8 h-8 text-blue-600 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Авторизация</h2>
+          <p className="text-gray-600">Завершаем вход через Google...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === "success") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center bg-gradient-to-br from-green-50 to-emerald-100">
+        <div className="bg-white p-8 rounded-2xl shadow-lg">
+          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Успешно!</h2>
+          <p className="text-gray-600">Перенаправляем вас...</p>
+        </div>
       </div>
     )
   }
 
   if (status === "error") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 space-y-4">
-        <p className="text-red-500 font-semibold">{errorMsg}</p>
-        <button
-          onClick={() => (window.location.href = "/login")}
-          className="px-4 py-2 bg-slate-900 text-white rounded-md"
-        >
-          Верну��ься на страницу входа
-        </button>
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 space-y-4 bg-gradient-to-br from-red-50 to-pink-100">
+        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md">
+          <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Ошибка авторизации</h2>
+          <p className="text-red-600 mb-4">{errorMsg}</p>
+          <button
+            onClick={() => (window.location.href = "/login")}
+            className="px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+          >
+            Вернуться на страницу входа
+          </button>
+        </div>
       </div>
     )
   }
