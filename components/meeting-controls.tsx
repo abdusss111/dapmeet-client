@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Search, Download, Filter, X } from "lucide-react"
-import { getUniqueSpeakers, exportTranscript } from "@/lib/meeting-utils"
+import { exportTranscript } from "@/lib/meeting-utils"
 import type { Meeting } from "@/lib/types"
 
 interface MeetingControlsProps {
@@ -25,7 +25,8 @@ export function MeetingControls({
   onSpeakerToggle,
 }: MeetingControlsProps) {
   const [showSpeakerFilter, setShowSpeakerFilter] = useState(false)
-  const uniqueSpeakers = getUniqueSpeakers(meeting.segments)
+  // Используем speakers из API ответа вместо извлечения из segments
+  const uniqueSpeakers = meeting.speakers || []
 
   const handleExport = () => {
     exportTranscript(meeting.segments, meeting.title)

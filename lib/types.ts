@@ -24,6 +24,7 @@ export interface Meeting {
   title: string
   segments: MeetingSegment[]
   created_at: string
+  speakers: string[]
 }
 
 export interface ProcessedSegment extends MeetingSegment {
