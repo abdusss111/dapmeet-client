@@ -91,6 +91,10 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     }
   }
 
+  const formatChatHistory = () => {
+    return messages.map((msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`).join("\n")
+  }
+
   const handleSend = async () => {
     if (!message.trim()) return
 
@@ -103,6 +107,13 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     await saveMessage("user", userMessage)
 
     try {
+      const chatHistory = formatChatHistory()
+      const fullContext = `TRANSCRIPT:
+${transcript}
+
+CHAT HISTORY:
+${chatHistory}`
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -110,7 +121,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
         },
         body: JSON.stringify({
           prompt: userMessage,
-          context: transcript,
+          context: fullContext,
         }),
       })
 
