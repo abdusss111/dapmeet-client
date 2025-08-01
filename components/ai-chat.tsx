@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Send, Bot } from "lucide-react"
+import { Send, Bot, FileText, BookOpen, Copy } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -33,6 +33,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
+  const [copySuccess, setCopySuccess] = useState<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
@@ -114,16 +115,22 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     }
   }
 
-  const handleSend = async () => {
-    if (!message.trim()) return
+  const handleSend = async (customMessage?: string, displayMessage?: string) => {
+    const messageToSend = customMessage || message
+    const messageToDisplay = displayMessage || messageToSend
+    const messageToSave = displayMessage || messageToSend
 
-    const userMessage = message
-    setMessage("")
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }])
+    if (!messageToSend.trim()) return
+
+    if (!customMessage) {
+      setMessage("")
+    }
+
+    setMessages((prev) => [...prev, { role: "user", content: messageToDisplay }])
     setIsLoading(true)
 
-    // Save user message
-    await saveMessage("user", userMessage)
+    // Save user message (display version for history)
+    await saveMessage("user", messageToSave)
 
     try {
       const response = await fetch("/api/chat", {
@@ -132,7 +139,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          prompt: userMessage,
+          prompt: messageToSend, // Send full prompt to API
           context: transcript,
         }),
       })
@@ -155,6 +162,61 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
       await saveMessage("ai", errorMessage)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleQuickPrompt = (promptType: "brief" | "detailed") => {
+    const prompts = {
+      brief: {
+        full: "Сделай краткое официальное резюме онлайн-встречи. Включи следующие элементы:
+
+        Цель встречи и основные обсуждённые темы — сформулируй сжато, но по существу.
+
+        Участников встречи — с указанием ролей, если это важно.
+
+        Краткий обзор ключевых обсуждений — изложи без лишних деталей, но с акцентом на суть и сделанные выводы. Без нумерации.
+
+        Следующие шаги для каждого участника — чётко укажи, кто за что отвечает и в какие сроки.
+
+        Упомяни, если была согласована дата следующей встречи.
+
+        Стиль оформления — официальный, важные моменты выделяй жирным шрифтом.
+
+        Краткое резюме и действия",
+        display: "Краткое резюме и следующие действия",
+      },
+      detailed: {
+        full: "Создай подробное официальное резюме внутренней командной онлайн-встречи. Включи следующие структурированные блоки:
+
+        Контекст и повестка встречи — 1–2 предложения с описанием цели встречи и ключевых тем обсуждения.
+
+        Общие сведения о встрече — укажи дату и время проведения (включая точное время начала и окончания), формат встречи (онлайн/гибридный), платформу проведения (Zoom, Teams, Google Meet и т.д.) и список участников с их ролями (если применимо).
+
+        Обсуждаемые темы и подробное резюме — представь нумерованный список всех ключевых тем, поднятых на встрече, и по каждой теме подробно опиши, что обсуждалось. Используй подзаголовки, логичный пересказ, отрази мнения, предложения и выводы участников.
+
+        Результаты и действия участников — перечисли принятые решения и договоренности (включая цифры, сроки, показатели), затем распиши следующие шаги и задачи для каждого участника, включая сроки. Укажи также открытые вопросы, перенесённые на следующую встречу.
+
+        Цитаты и замечания участников — включи ключевые формулировки, предложения, инициативы и сомнения, прозвучавшие в ходе обсуждения.
+
+        Дата следующей встречи — если согласована.
+
+        Весь текст должен быть официальным по стилю. Ключевые детали и важные моменты выделяй жирным шрифтом для акцента.",
+        display: "Подробное резюме",
+      },
+    }
+
+    const selectedPrompt = prompts[promptType]
+    handleSend(selectedPrompt.full, selectedPrompt.display)
+  }
+
+  const handleCopyMessage = async (content: string, index: number) => {
+    try {
+      const textToCopy = `${content}\n\nСоздано на dapmeet.kz`
+      await navigator.clipboard.writeText(textToCopy)
+      setCopySuccess(index)
+      setTimeout(() => setCopySuccess(null), 2000)
+    } catch (error) {
+      console.error("Failed to copy message:", error)
     }
   }
 
@@ -199,12 +261,27 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
             </div>
           ) : (
             messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} group`}>
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
+                  className={`max-w-[80%] p-3 rounded-lg relative ${
                     msg.role === "user" ? "bg-blue-600 text-white" : "bg-white border border-gray-200"
                   }`}
                 >
+                  {/* Copy button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0 ${
+                      msg.role === "user"
+                        ? "bg-blue-500 hover:bg-blue-400 text-white"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                    } ${copySuccess === index ? "opacity-100" : ""}`}
+                    onClick={() => handleCopyMessage(msg.content, index)}
+                    title="Копировать сообщение"
+                  >
+                    {copySuccess === index ? <span className="text-xs">✓</span> : <Copy className="w-3 h-3" />}
+                  </Button>
+
                   {msg.role === "assistant" ? (
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
@@ -243,6 +320,35 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Quick Prompt Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+          <div className="text-xs font-medium text-gray-600 mb-2 sm:mb-0 sm:mr-3 flex items-center">
+            Быстрые запросы:
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 flex-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuickPrompt("brief")}
+              disabled={isLoading}
+              className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 text-blue-700 hover:text-blue-800 transition-all duration-200"
+            >
+              <FileText className="w-4 h-4" />
+              <span className="text-sm">Краткое резюме и следующие действия</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuickPrompt("detailed")}
+              disabled={isLoading}
+              className="flex-1 justify-start gap-2 bg-white hover:bg-indigo-50 border-indigo-200 text-indigo-700 hover:text-indigo-800 transition-all duration-200"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span className="text-sm">Подробное резюме</span>
+            </Button>
+          </div>
+        </div>
+
         <div className="flex gap-2">
           <Textarea
             placeholder="Задайте вопрос о встрече..."
@@ -257,7 +363,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
             className="flex-1"
             rows={2}
           />
-          <Button onClick={handleSend} disabled={!message.trim() || isLoading}>
+          <Button onClick={() => handleSend()} disabled={!message.trim() || isLoading}>
             <Send className="w-4 h-4" />
           </Button>
         </div>
