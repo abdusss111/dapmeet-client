@@ -16,11 +16,16 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
 
   // Filter out current user from speakers list for display
   const otherSpeakers = meeting.speakers?.filter((speaker) => speaker !== user?.name) || []
+  const speakersToShow = otherSpeakers.slice(0, 3)
+  const remainingCount = otherSpeakers.length - speakersToShow.length
 
   // Total speakers count includes current user
   const totalSpeakersCount = meeting.speakers?.length || 0
 
-  const speakersText = otherSpeakers.length > 0 ? `${otherSpeakers.join(", ")}` : "Нет других участников"
+  const speakersText =
+    speakersToShow.length > 0
+      ? `${speakersToShow.join(", ")}${remainingCount > 0 ? ` и еще ${remainingCount}` : ""}`
+      : "Нет других участников"
 
   return (
     <Link href={`/meetings/${meeting.unique_session_id || meeting.id}`}>
@@ -45,13 +50,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
             <div className="flex items-center text-sm text-gray-600">
               <Users className="w-4 h-4 mr-2 flex-shrink-0" />
               <span className="truncate">
-                {totalSpeakersCount} участников:
-                <span className="hidden sm:inline">{speakersText}</span>
-                <span className="sm:hidden">
-                  {otherSpeakers.length > 0
-                    ? `${otherSpeakers[0]}${otherSpeakers.length > 1 ? ` и еще ${otherSpeakers.length - 1}` : ""}`
-                    : "Нет других участников"}
-                </span>
+                {totalSpeakersCount} участников: {speakersText}
               </span>
             </div>
           </div>
