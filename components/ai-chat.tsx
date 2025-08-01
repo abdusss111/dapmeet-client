@@ -258,7 +258,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg relative ${
+                  className={`max-w-[85%] md:max-w-[80%] p-2 md:p-3 rounded-lg relative ${
                     msg.role === "user" ? "bg-blue-600 text-white" : "bg-white border border-gray-200"
                   }`}
                 >
@@ -282,21 +282,29 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
                       remarkPlugins={[remarkGfm]}
                       className="prose prose-xs max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-100 prose-pre:text-gray-800"
                       components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                        ul: ({ children }) => <ul className="mb-2 last:mb-0 pl-4">{children}</ul>,
-                        ol: ({ children }) => <ol className="mb-2 last:mb-0 pl-4">{children}</ol>, // Added closing tag for 'ol'
-                        li: ({ children }) => <li className="mb-1">{children}</li>,
-                        h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-base font-bold mb-2">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
-                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                        p: ({ children }) => (
+                          <p className="mb-1.5 last:mb-0 text-xs md:text-sm leading-relaxed">{children}</p>
+                        ),
+                        ul: ({ children }) => (
+                          <ul className="mb-1.5 last:mb-0 pl-3 md:pl-4 text-xs md:text-sm">{children}</ul>
+                        ),
+                        ol: ({ children }) => (
+                          <ol className="mb-1.5 last:mb-0 pl-3 md:pl-4 text-xs md:text-sm">{children}</ol>
+                        ),
+                        li: ({ children }) => <li className="mb-0.5 text-xs md:text-sm">{children}</li>,
+                        h1: ({ children }) => <h1 className="text-sm md:text-lg font-bold mb-1.5">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-xs md:text-base font-bold mb-1.5">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-xs md:text-sm font-bold mb-1">{children}</h3>,
+                        strong: ({ children }) => (
+                          <strong className="font-semibold text-xs md:text-sm">{children}</strong>
+                        ),
                         code: ({ children }) => <code className="text-xs">{children}</code>,
                       }}
                     >
                       {msg.content}
                     </ReactMarkdown>
                   ) : (
-                    <span className="text-sm">{msg.content}</span>
+                    <span className="text-xs md:text-sm leading-relaxed">{msg.content}</span>
                   )}
                 </div>
               </div>
@@ -326,22 +334,22 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
               size="sm"
               onClick={() => handleQuickPrompt("brief")}
               disabled={isLoading}
-              className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200"
+              className="flex-1 justify-start gap-1 md:gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200 text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2"
               style={{ color: "rgb(7, 65, 210)" }}
             >
-              <FileText className="w-4 h-4" />
-              <span className="text-sm">Краткое резюме и следующие действия</span>
+              <FileText className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+              <span className="truncate">Краткое резюме</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleQuickPrompt("detailed")}
               disabled={isLoading}
-              className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200"
+              className="flex-1 justify-start gap-1 md:gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200 text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2"
               style={{ color: "rgb(7, 65, 210)" }}
             >
-              <BookOpen className="w-4 h-4" />
-              <span className="text-sm">Подробное резюме</span>
+              <BookOpen className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+              <span className="truncate">Подробное резюме</span>
             </Button>
           </div>
         </div>

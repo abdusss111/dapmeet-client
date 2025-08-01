@@ -92,7 +92,7 @@ export default function MeetingsList({ filter = "all" }: MeetingsListProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="grid gap-4 md:gap-6">
           {filteredMeetings.length === 0 ? (
             <div className="py-6 text-center">
               <p className="text-muted-foreground">Встречи не найдены</p>
@@ -101,26 +101,26 @@ export default function MeetingsList({ filter = "all" }: MeetingsListProps) {
             filteredMeetings.map((meeting) => (
               <div
                 key={meeting.id}
-                className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-lg border p-3 md:p-4 hover:shadow-md transition-shadow"
               >
-                <div className="space-y-1">
-                  <h3 className="font-medium">{meeting.title}</h3>
-                  <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                <div className="space-y-2">
+                  <h3 className="font-medium text-sm md:text-base line-clamp-2">{meeting.title}</h3>
+                  <div className="flex flex-col gap-1 text-xs md:text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>{formatDate(meeting.date)}</span>
+                      <Calendar className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+                      <span className="truncate">{formatDate(meeting.date)}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      <span>{meeting.participants.length} участников</span>
+                      <User className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+                      <span className="truncate">{meeting.participants.length} участников</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 self-end sm:self-auto">
-                  <Badge variant={meeting.status === "completed" ? "default" : "secondary"}>
+                <div className="flex items-center justify-between gap-2">
+                  <Badge variant={meeting.status === "completed" ? "default" : "secondary"} className="text-xs">
                     {getStatusTranslation(meeting.status)}
                   </Badge>
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild className="text-xs px-2 py-1 h-7 bg-transparent">
                     <Link href={`/meetings/${meeting.id}`}>Подробнее</Link>
                   </Button>
                 </div>
