@@ -48,14 +48,6 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     scrollToBottom()
   }, [messages])
 
-  // Calculate dynamic height based on message count with max 700px
-  const getChatHeight = () => {
-    if (messages.length === 0) return "h-40" // 160px - minimum height when empty
-    if (messages.length <= 3) return "h-64" // 256px - small conversations
-    if (messages.length <= 6) return "h-80" // 320px - medium conversations
-    return "h-[700px]" // 700px - maximum height
-  }
-
   // Load chat history on component mount
   useEffect(() => {
     const loadChatHistory = async () => {
@@ -222,19 +214,18 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
 
   if (isLoadingHistory) {
     return (
-      <Card className="bg-white border-gray-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="w-5 h-5" />
-            AI
+      <Card className="bg-white border-gray-200 h-[600px] flex flex-col">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Bot className="w-5 h-5 text-blue-600" />
+            AI Ассистент
+            <span className="text-sm font-normal text-gray-500 ml-2">({meetingTitle})</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="h-40 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Загрузка истории чата...</p>
-            </div>
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Загрузка истории чата...</p>
           </div>
         </CardContent>
       </Card>
@@ -242,134 +233,160 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
   }
 
   return (
-    <Card className="bg-white border-gray-200">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bot className="w-5 h-5" />
-          AI
+    <Card className="bg-white border-gray-200 h-[600px] flex flex-col">
+      <CardHeader className="pb-4 border-b border-gray-100">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Bot className="w-5 h-5 text-blue-600" />
+          AI Ассистент
+          <span className="text-sm font-normal text-gray-500 ml-2">({meetingTitle})</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      
+      <CardContent className="flex-1 flex flex-col gap-4 p-4 min-h-0">
+        {/* Chat Messages Area - Takes up most of the space */}
         <div
           ref={chatContainerRef}
-          className={`${getChatHeight()} overflow-y-auto space-y-4 p-4 bg-gray-50 rounded-lg transition-all duration-300`}
+          className="flex-1 overflow-y-auto space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-100 min-h-0"
+          style={{ minHeight: '300px' }}
         >
           {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-4">
-              <Bot className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-              <p className="text-sm">Задайте вопрос о встрече, и я помогу вам найти ответ!</p>
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center py-8">
+                <Bot className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <p className="text-gray-500 text-base mb-2">Добро пожаловать в AI чат!</p>
+                <p className="text-gray-400 text-sm max-w-md mx-auto">
+                  Задайте вопрос о встрече или воспользуйтесь быстрыми командами ниже для создания резюме
+                </p>
+              </div>
             </div>
           ) : (
-            messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} group animate-in slide-in-from-bottom-2 duration-500`}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
+            <>
+              {messages.map((msg, index) => (
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg relative ${
-                    msg.role === "user" ? "bg-blue-600 text-white" : "bg-white border border-gray-200"
-                  }`}
+                  key={index}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} group animate-in slide-in-from-bottom-2 duration-300`}
                 >
-                  {/* Copy button */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0 ${
-                      msg.role === "user"
-                        ? "bg-blue-500 hover:bg-blue-400 text-white"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-                    } ${copySuccess === index ? "opacity-100" : ""}`}
-                    onClick={() => handleCopyMessage(msg.content, index)}
-                    title="Копировать сообщение"
+                  <div
+                    className={`max-w-[85%] p-4 rounded-xl relative shadow-sm ${
+                      msg.role === "user" 
+                        ? "bg-blue-600 text-white ml-12" 
+                        : "bg-white border border-gray-200 mr-12"
+                    }`}
                   >
-                    {copySuccess === index ? <span className="text-xs">✓</span> : <Copy className="w-3 h-3" />}
-                  </Button>
-
-                  {msg.role === "assistant" ? (
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      className="prose prose-xs max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-100 prose-pre:text-gray-800"
-                      components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                        ul: ({ children }) => <ul className="mb-2 last:mb-0 pl-4">{children}</ul>,
-                        ol: ({ children }) => <ol className="mb-2 last:mb-0 pl-4">{children}</ol>,
-                        li: ({ children }) => <li className="mb-1">{children}</li>,
-                        h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-base font-bold mb-2">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
-                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                        code: ({ children }) => <code className="text-xs">{children}</code>,
-                      }}
+                    {/* Copy button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 h-7 w-7 p-0 shadow-md ${
+                        msg.role === "user"
+                          ? "bg-blue-500 hover:bg-blue-400 text-white"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                      } ${copySuccess === index ? "opacity-100 scale-110" : ""}`}
+                      onClick={() => handleCopyMessage(msg.content, index)}
+                      title="Копировать сообщение"
                     >
-                      {msg.content}
-                    </ReactMarkdown>
-                  ) : (
-                    <span className="text-sm">{msg.content}</span>
-                  )}
+                      {copySuccess === index ? (
+                        <span className="text-xs font-bold">✓</span>
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </Button>
+
+                    {msg.role === "assistant" ? (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-pre:bg-gray-100 prose-pre:text-gray-800 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700"
+                        components={{
+                          p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>,
+                          ul: ({ children }) => <ul className="mb-3 last:mb-0 pl-4 space-y-1">{children}</ul>,
+                          ol: ({ children }) => <ol className="mb-3 last:mb-0 pl-4 space-y-1">{children}</ol>,
+                          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                          h1: ({ children }) => <h1 className="text-xl font-bold mb-3 text-gray-900">{children}</h1>,
+                          h2: ({ children }) => <h2 className="text-lg font-bold mb-2 text-gray-900">{children}</h2>,
+                          h3: ({ children }) => <h3 className="text-base font-bold mb-2 text-gray-900">{children}</h3>,
+                          strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                          code: ({ children }) => <code className="text-sm">{children}</code>,
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    ) : (
+                      <div className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-white border border-gray-200 p-3 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  Думаю...
+              ))}
+              
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm mr-12">
+                    <div className="flex items-center gap-3">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <span className="text-gray-600">Обрабатываю запрос...</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              )}
+            </>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick Prompt Buttons */}
-        <div
-          className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border border-blue-200"
-          style={{ backgroundColor: "rgba(7, 65, 210, 0.05)" }}
-        >
-          <div className="flex flex-col sm:flex-row gap-2 flex-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickPrompt("brief")}
-              disabled={isLoading}
-              className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200"
-              style={{ color: "rgb(7, 65, 210)" }}
-            >
-              <FileText className="w-4 h-4" />
-              <span className="text-sm">Краткое резюме и следующие действия</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickPrompt("detailed")}
-              disabled={isLoading}
-              className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200"
-              style={{ color: "rgb(7, 65, 210)" }}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span className="text-sm">Подробное резюме</span>
-            </Button>
+        {/* Quick Actions Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+          <div className="flex flex-col gap-3">
+            <h4 className="text-sm font-medium text-gray-700 mb-1">Быстрые действия:</h4>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickPrompt("brief")}
+                disabled={isLoading}
+                className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200 text-blue-700 hover:text-blue-800"
+              >
+                <FileText className="w-4 h-4" />
+                <span className="text-sm font-medium">Краткое резюме</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickPrompt("detailed")}
+                disabled={isLoading}
+                className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200 text-blue-700 hover:text-blue-800"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span className="text-sm font-medium">Подробное резюме</span>
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Textarea
-            placeholder="Задайте вопрос о встрече..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault()
-                handleSend()
-              }
-            }}
-            className="flex-1 h-10 resize-none"
-          />
-          <Button onClick={() => handleSend()} disabled={!message.trim() || isLoading}>
-            <ArrowUp className="w-4 h-4" />
+        {/* Input Section */}
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <Textarea
+              placeholder="Задайте вопрос о встрече или попросите создать резюме..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault()
+                  handleSend()
+                }
+              }}
+              className="min-h-[60px] max-h-[120px] resize-none border-gray-200 focus:border-blue-300 focus:ring-blue-200 text-sm leading-relaxed"
+              rows={2}
+            />
+            <div className="text-xs text-gray-400 mt-1 ml-1">
+              Нажмите Enter для отправки, Shift+Enter для новой строки
+            </div>
+          </div>
+          <Button 
+            onClick={() => handleSend()} 
+            disabled={!message.trim() || isLoading}
+            className="h-[60px] px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 transition-colors duration-200"
+          >
+            <ArrowUp className="w-5 h-5" />
           </Button>
         </div>
       </CardContent>
