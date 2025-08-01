@@ -9,7 +9,7 @@ import Image from "next/image"
 export default function InstructionPage() {
   const handleDownload = () => {
     window.open(
-      "https://drive.usercontent.google.com/u/0/uc?id=1OuUuyNuQohWNrbrnO2xdUEYP6GOHi_TN&export=download",
+      "https://drive.usercontent.google.com/u/0/uc?id=1EKOmVJrupjlu67i0_eEW7Lt4chJk_a5O&export=download",
       "_blank",
     )
   }

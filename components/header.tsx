@@ -1,12 +1,17 @@
 "use client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { LogOut, User } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { LogOut, User, Menu } from "lucide-react"
 import Image from "next/image"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth()
   const router = useRouter()
 
@@ -20,10 +25,13 @@ export function Header() {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Image src="/dapmeet-logo.png" alt="Dapmeet" width={120} height={40} />
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={onMenuClick}>
+            <Menu className="h-6 w-6" />
+          </Button>
+          <Image src="/dapmeet-logo.png" alt="Dapmeet" width={120} height={40} className="h-8 w-auto" />
         </div>
 
         <div className="flex items-center gap-4">
