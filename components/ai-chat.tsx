@@ -48,12 +48,12 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     scrollToBottom()
   }, [messages])
 
-  // Calculate dynamic height based on message count with max 400px
+  // Calculate dynamic height based on message count with max 600px
   const getChatHeight = () => {
-    if (messages.length === 0) return "h-32" // 128px - minimum height when empty
-    if (messages.length <= 3) return "h-48" // 192px - small conversations
-    if (messages.length <= 6) return "h-64" // 256px - medium conversations
-    return "h-[400px]" // 400px - maximum height
+    if (messages.length === 0) return "h-40" // 160px - minimum height when empty
+    if (messages.length <= 3) return "h-64" // 256px - small conversations
+    if (messages.length <= 6) return "h-80" // 320px - medium conversations
+    return "h-[600px]" // 600px - maximum height
   }
 
   // Load chat history on component mount
@@ -230,7 +230,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="h-32 flex items-center justify-center">
+          <div className="h-40 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
               <p className="text-gray-600">Загрузка истории чата...</p>
@@ -326,8 +326,8 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
 
         {/* Quick Prompt Buttons */}
         <div
-          className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border"
-          style={{ backgroundColor: "rgb(7, 65, 210)", borderColor: "rgb(7, 65, 210)" }}
+          className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border border-blue-200"
+          style={{ backgroundColor: "rgba(7, 65, 210, 0.05)" }}
         >
           <div className="flex flex-col sm:flex-row gap-2 flex-1">
             <Button
@@ -335,7 +335,8 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
               size="sm"
               onClick={() => handleQuickPrompt("brief")}
               disabled={isLoading}
-              className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 text-blue-700 hover:text-blue-800 transition-all duration-200"
+              className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200"
+              style={{ color: "rgb(7, 65, 210)" }}
             >
               <FileText className="w-4 h-4" />
               <span className="text-sm">Краткое резюме и следующие действия</span>
@@ -345,7 +346,8 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
               size="sm"
               onClick={() => handleQuickPrompt("detailed")}
               disabled={isLoading}
-              className="flex-1 justify-start gap-2 bg-white hover:bg-indigo-50 border-indigo-200 text-indigo-700 hover:text-indigo-800 transition-all duration-200"
+              className="flex-1 justify-start gap-2 bg-white hover:bg-blue-50 border-blue-200 transition-all duration-200"
+              style={{ color: "rgb(7, 65, 210)" }}
             >
               <BookOpen className="w-4 h-4" />
               <span className="text-sm">Подробное резюме</span>
