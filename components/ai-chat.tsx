@@ -53,7 +53,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     if (messages.length === 0) return "h-40" // 160px - minimum height when empty
     if (messages.length <= 3) return "h-64" // 256px - small conversations
     if (messages.length <= 6) return "h-80" // 320px - medium conversations
-    return "h-[600px]" // 600px - maximum height
+    return "h-[550px]" // 550px - maximum height
   }
 
   // Load chat history on component mount
@@ -289,7 +289,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
                   {msg.role === "assistant" ? (
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
-                      className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-100 prose-pre:text-gray-800"
+                      className="prose prose-xs max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-100 prose-pre:text-gray-800"
                       components={{
                         p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
                         ul: ({ children }) => <ul className="mb-2 last:mb-0 pl-4">{children}</ul>,
@@ -305,7 +305,7 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
                       {msg.content}
                     </ReactMarkdown>
                   ) : (
-                    msg.content
+                    <span className="text-sm">{msg.content}</span>
                   )}
                 </div>
               </div>
