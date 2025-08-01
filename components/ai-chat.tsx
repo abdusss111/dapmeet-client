@@ -48,12 +48,12 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     scrollToBottom()
   }, [messages])
 
-  // Calculate dynamic height based on message count with max 300px
+  // Calculate dynamic height based on message count with max 400px
   const getChatHeight = () => {
     if (messages.length === 0) return "h-32" // 128px - minimum height when empty
     if (messages.length <= 3) return "h-48" // 192px - small conversations
     if (messages.length <= 6) return "h-64" // 256px - medium conversations
-    return "h-[300px]" // 300px - maximum height
+    return "h-[400px]" // 400px - maximum height
   }
 
   // Load chat history on component mount
@@ -261,7 +261,11 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
             </div>
           ) : (
             messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} group`}>
+              <div
+                key={index}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} group animate-in slide-in-from-bottom-2 duration-500`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
                 <div
                   className={`max-w-[80%] p-3 rounded-lg relative ${
                     msg.role === "user" ? "bg-blue-600 text-white" : "bg-white border border-gray-200"
@@ -321,10 +325,10 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
         </div>
 
         {/* Quick Prompt Buttons */}
-        <div className="flex flex-col sm:flex-row gap-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-          <div className="text-xs font-medium text-gray-600 mb-2 sm:mb-0 sm:mr-3 flex items-center">
-            Быстрые запросы:
-          </div>
+        <div
+          className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border"
+          style={{ backgroundColor: "rgb(7, 65, 210)", borderColor: "rgb(7, 65, 210)" }}
+        >
           <div className="flex flex-col sm:flex-row gap-2 flex-1">
             <Button
               variant="outline"
