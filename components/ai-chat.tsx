@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Send, Bot, FileText, BookOpen, Copy } from "lucide-react"
+import { ArrowUp, Bot, FileText, BookOpen, Copy } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -48,12 +48,12 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     scrollToBottom()
   }, [messages])
 
-  // Calculate dynamic height based on message count with max 600px
+  // Calculate dynamic height based on message count with max 700px
   const getChatHeight = () => {
     if (messages.length === 0) return "h-40" // 160px - minimum height when empty
     if (messages.length <= 3) return "h-64" // 256px - small conversations
     if (messages.length <= 6) return "h-80" // 320px - medium conversations
-    return "h-[550px]" // 550px - maximum height
+    return "h-[700px]" // 700px - maximum height
   }
 
   // Load chat history on component mount
@@ -366,11 +366,10 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
                 handleSend()
               }
             }}
-            className="flex-1"
-            rows={2}
+            className="flex-1 h-10 resize-none"
           />
           <Button onClick={() => handleSend()} disabled={!message.trim() || isLoading}>
-            <Send className="w-4 h-4" />
+            <ArrowUp className="w-4 h-4" />
           </Button>
         </div>
       </CardContent>
