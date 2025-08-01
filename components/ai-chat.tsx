@@ -36,21 +36,23 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
-  // Auto scroll to bottom
+  // Auto scroll to bottom of chat container
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+    }
   }
 
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
-  // Calculate dynamic height based on message count
+  // Calculate dynamic height based on message count with max 300px
   const getChatHeight = () => {
     if (messages.length === 0) return "h-32" // 128px - minimum height when empty
     if (messages.length <= 3) return "h-48" // 192px - small conversations
     if (messages.length <= 6) return "h-64" // 256px - medium conversations
-    return "h-72" // 288px - maximum height (close to 300px)
+    return "h-[300px]" // 300px - maximum height
   }
 
   // Load chat history on component mount
