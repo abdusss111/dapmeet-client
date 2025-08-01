@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Send, Bot } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface AIChatProps {
   sessionId: string
@@ -31,6 +33,25 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
+
+  // Auto scroll to bottom
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  // Calculate dynamic height based on message count
+  const getChatHeight = () => {
+    if (messages.length === 0) return "h-32" // 128px - minimum height when empty
+    if (messages.length <= 3) return "h-48" // 192px - small conversations
+    if (messages.length <= 6) return "h-64" // 256px - medium conversations
+    return "h-72" // 288px - maximum height (close to 300px)
+  }
 
   // Load chat history on component mount
   useEffect(() => {
@@ -91,10 +112,6 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     }
   }
 
-  const formatChatHistory = () => {
-    return messages.map((msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`).join("\n")
-  }
-
   const handleSend = async () => {
     if (!message.trim()) return
 
@@ -107,13 +124,6 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     await saveMessage("user", userMessage)
 
     try {
-      const chatHistory = formatChatHistory()
-      const fullContext = `TRANSCRIPT:
-${transcript}
-
-CHAT HISTORY:
-${chatHistory}`
-
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -121,7 +131,7 @@ ${chatHistory}`
         },
         body: JSON.stringify({
           prompt: userMessage,
-          context: fullContext,
+          context: transcript,
         }),
       })
 
@@ -156,7 +166,7 @@ ${chatHistory}`
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="h-96 flex items-center justify-center">
+          <div className="h-32 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
               <p className="text-gray-600">Загрузка истории чата...</p>
@@ -176,11 +186,14 @@ ${chatHistory}`
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="h-96 overflow-y-auto space-y-4 p-4 bg-gray-50 rounded-lg">
+        <div
+          ref={chatContainerRef}
+          className={`${getChatHeight()} overflow-y-auto space-y-4 p-4 bg-gray-50 rounded-lg transition-all duration-300`}
+        >
           {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              <Bot className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p>Задайте вопрос о встрече, и я помогу вам найти ответ!</p>
+            <div className="text-center text-gray-500 py-4">
+              <Bot className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+              <p className="text-sm">Задайте вопрос о встрече, и я помогу вам найти ответ!</p>
             </div>
           ) : (
             messages.map((msg, index) => (
@@ -190,7 +203,27 @@ ${chatHistory}`
                     msg.role === "user" ? "bg-blue-600 text-white" : "bg-white border border-gray-200"
                   }`}
                 >
-                  {msg.content}
+                  {msg.role === "assistant" ? (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-100 prose-pre:text-gray-800"
+                      components={{
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        ul: ({ children }) => <ul className="mb-2 last:mb-0 pl-4">{children}</ul>,
+                        ol: ({ children }) => <ol className="mb-2 last:mb-0 pl-4">{children}</ol>,
+                        li: ({ children }) => <li className="mb-1">{children}</li>,
+                        h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-base font-bold mb-2">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
+                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                        code: ({ children }) => <code className="text-xs">{children}</code>,
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
               </div>
             ))
@@ -205,6 +238,7 @@ ${chatHistory}`
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
         <div className="flex gap-2">
