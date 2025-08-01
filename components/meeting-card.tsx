@@ -20,7 +20,8 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
   // Total speakers count includes current user
   const totalSpeakersCount = meeting.speakers?.length || 0
 
-  const speakersText = otherSpeakers.length > 0 ? `${otherSpeakers.join(", ")}` : "Нет других участников"
+  // Create speakers text in format "Вы и [other speakers]"
+  const speakersText = otherSpeakers.length > 0 ? `Вы и ${otherSpeakers.join(", ")}` : "Только вы"
 
   return (
     <Link href={`/meetings/${meeting.unique_session_id || meeting.id}`}>
@@ -46,15 +47,13 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
             <div className="min-w-0 flex-1">
               <div className="truncate">
                 <span className="font-medium">{totalSpeakersCount} участников</span>
-                {otherSpeakers.length > 0 && (
-                  <>
-                    <span className="hidden sm:inline">: {speakersText}</span>
-                    <span className="sm:hidden">
-                      : {otherSpeakers[0]}
-                      {otherSpeakers.length > 1 ? ` и еще ${otherSpeakers.length - 1}` : ""}
-                    </span>
-                  </>
-                )}
+                <span className="hidden sm:inline">: {speakersText}</span>
+                <span className="sm:hidden">
+                  :{" "}
+                  {otherSpeakers.length > 0
+                    ? `Вы и ${otherSpeakers[0]}${otherSpeakers.length > 1 ? ` и еще ${otherSpeakers.length - 1}` : ""}`
+                    : "Только вы"}
+                </span>
               </div>
             </div>
           </div>
