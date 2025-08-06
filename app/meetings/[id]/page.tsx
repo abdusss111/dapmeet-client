@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft } from 'lucide-react'
 import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { MeetingHeader } from "@/components/meeting-header"
@@ -37,7 +37,7 @@ export default function MeetingDetailPage() {
           return
         }
 
-        const response = await fetch(`${API_URL}/api/meetings/${meetingId}`, {
+        const response = await fetch(`${API_URL}/api/meetings/by-meeting-id/${meetingId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
