@@ -37,7 +37,7 @@ export default function MeetingDetailPage() {
           return
         }
 
-        const response = await fetch(`${API_URL}/api/meetings/by-meeting-id/${meetingId}`, {
+        const response = await fetch(`${API_URL}/api/meetings/${meetingId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
