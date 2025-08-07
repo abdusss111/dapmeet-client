@@ -3,7 +3,7 @@
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, Settings, Folder, Puzzle, CheckCircle } from "lucide-react"
+import { Download, Settings, Folder, Puzzle, CheckCircle } from 'lucide-react'
 import Image from "next/image"
 
 export default function InstructionPage() {
@@ -21,10 +21,26 @@ export default function InstructionPage() {
           <h1 className="text-3xl font-bold mb-4">
             Как установить расширение dapmeet в Google Chrome (режим разработчика)
           </h1>
-          <p className="text-gray-600">
-            На этой странице вы можете скачать наше расширение и установить его в браузер Google Chrome в режиме
-            разработчика. Следуйте пошаговой инструкции ниже:
-          </p>
+          <div className="space-y-3 text-gray-600">
+            <p>
+              На этой странице вы можете скачать наше расширение и установить его в браузер Google Chrome в режиме
+              разработчика. Следуйте пошаговой инструкции ниже:
+            </p>
+            <p className="text-sm text-blue-600 font-medium">
+              Последнее обновление расширения: 7 августа 2025 года
+            </p>
+            <p>
+              В ТГ-канале будут свежие обновления, вот ссылка:{" "}
+              <a 
+                href="https://t.me/dapmeet" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline font-medium"
+              >
+                https://t.me/dapmeet
+              </a>
+            </p>
+          </div>
         </div>
 
         <div className="space-y-8">
