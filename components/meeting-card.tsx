@@ -60,7 +60,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
   const participantWord = getParticipantWord(totalSpeakersCount)
 
   return (
-    <Link href={`/meetings/${meeting.unique_session_id || meeting.id}`}>
+    <Link href={`/meetings/${meeting.meeting_id || meeting.id}`}>
       <Card className="hover:shadow-md transition-shadow cursor-pointer bg-white border-gray-200">
         <CardHeader className="pb-2 md:pb-3">
           <div className="flex items-start justify-between">

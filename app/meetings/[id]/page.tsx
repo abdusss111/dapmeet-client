@@ -157,7 +157,7 @@ export default function MeetingDetailPage() {
           />
 
           <AIChat
-            sessionId={meeting.unique_session_id}
+            sessionId={meeting.meeting_id}
             meetingTitle={meeting.title}
             transcript={formatTranscript(meeting)}
           />
