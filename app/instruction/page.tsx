@@ -9,7 +9,7 @@ import Image from "next/image"
 export default function InstructionPage() {
   const handleDownload = () => {
     window.open(
-      "https://drive.usercontent.google.com/u/0/uc?id=1uAbAWqNcFc8cFqS0iFUCvO5fCRPo4A3N&export=download",
+      "https://drive.usercontent.google.com/u/0/uc?id=1onuPj8iSngrpWLBcknUgknSNohHmpmqg&export=download",
       "_blank",
     )
   }
@@ -31,9 +31,9 @@ export default function InstructionPage() {
             </p>
             <p>
               В ТГ-канале будут свежие обновления, вот ссылка:{" "}
-              <a 
-                href="https://t.me/dapmeet" 
-                target="_blank" 
+              <a
+                href="https://t.me/dapmeet"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 underline font-medium"
               >
