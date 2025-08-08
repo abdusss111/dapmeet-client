@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
-import { MessageSquare, Clock } from "lucide-react"
+import { MessageSquare, Clock } from 'lucide-react'
 import { processSegments, formatTimestamp, searchInTranscript } from "@/lib/meeting-utils"
 import type { Meeting } from "@/lib/types"
 
@@ -15,6 +15,8 @@ interface TranscriptViewProps {
 }
 
 export function TranscriptView({ meeting, searchQuery, selectedSpeakers }: TranscriptViewProps) {
+  // ВАЖНО: порядок сегментов сохраняется как пришёл из API.
+  // searchInTranscript и processSegments НЕ сортируют массив.
   const filteredAndProcessedSegments = useMemo(() => {
     let segments = meeting.segments
 

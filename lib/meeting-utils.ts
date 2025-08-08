@@ -78,28 +78,23 @@ export const getSpeakerColor = (speaker: string, allSpeakers: string[]): string 
 export const processSegments = (segments: MeetingSegment[]): ProcessedSegment[] => {
   if (!segments || segments.length === 0) return []
 
-  // Sort segments by timestamp
-  const sortedSegments = [...segments].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-
-  const allSpeakers = getUniqueSpeakers(sortedSegments)
+  // Порядок сохраняем как пришёл из API (не сортируем)
+  const allSpeakers = getUniqueSpeakers(segments)
   const processed: ProcessedSegment[] = []
 
-  for (let i = 0; i < sortedSegments.length; i++) {
-    const segment = sortedSegments[i]
-    const prevSegment = sortedSegments[i - 1]
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i]
+    const prev = segments[i - 1]
 
-    // Check if this should be grouped with previous segment
     const shouldGroup =
-      prevSegment &&
-      prevSegment.speaker_username === segment.speaker_username &&
-      new Date(segment.timestamp).getTime() - new Date(prevSegment.timestamp).getTime() < 120000 // 2 minutes
+      !!prev &&
+      prev.speaker_username === segment.speaker_username &&
+      new Date(segment.timestamp).getTime() - new Date(prev.timestamp).getTime() < 120000 // 2 минуты
 
     if (shouldGroup && processed.length > 0) {
-      // Add to previous group
-      const lastProcessed = processed[processed.length - 1]
-      lastProcessed.groupedMessages.push(segment.text)
+      const last = processed[processed.length - 1]
+      last.groupedMessages.push(segment.text)
     } else {
-      // Create new group
       processed.push({
         ...segment,
         groupedMessages: [segment.text],
@@ -113,12 +108,15 @@ export const processSegments = (segments: MeetingSegment[]): ProcessedSegment[] 
 }
 
 export const searchInTranscript = (segments: MeetingSegment[], query: string): MeetingSegment[] => {
-  if (!query.trim()) return segments
+  const q = query.trim()
+  if (!q) return segments
 
-  const lowerQuery = query.toLowerCase()
+  const lower = q.toLowerCase()
+  // Фильтрация с сохранением исходного порядка
   return segments.filter(
-    (segment) =>
-      segment.text.toLowerCase().includes(lowerQuery) || segment.speaker_username.toLowerCase().includes(lowerQuery),
+    (s) =>
+      s.text.toLowerCase().includes(lower) ||
+      s.speaker_username.toLowerCase().includes(lower)
   )
 }
 
