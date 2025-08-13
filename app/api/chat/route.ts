@@ -20,8 +20,8 @@ export async function POST(req: Request) {
 
     console.log("Making Anthropic API call...")
     const message = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 8192,
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 16384,
       system: `You are a helpful and intelligent meeting assistant embedded in a productivity app. Your goal is to help users understand, summarize, and get insights from their meeting transcripts.
 
 You have access to the full transcript of each meeting, including speaker labels, timestamps, and optionally topics. Be concise, clear, and professional.
