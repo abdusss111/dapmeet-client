@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     const message = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20241022",
-      max_tokens: 1024,
+      max_tokens: 8192,
       system: `You are a helpful and intelligent meeting assistant embedded in a productivity app. Your goal is to help users understand, summarize, and get insights from their meeting transcripts.
 
 You have access to the full transcript of each meeting, including speaker labels, timestamps, and optionally topics. Be concise, clear, and professional.
@@ -51,6 +51,11 @@ ${context}`,
     return NextResponse.json({ text })
   } catch (err) {
     console.error("🔥 AI Chat Error:", err)
+    console.error("Error details:", {
+      message: err instanceof Error ? err.message : "Unknown error",
+      stack: err instanceof Error ? err.stack : undefined,
+      name: err instanceof Error ? err.name : undefined,
+    })
     return NextResponse.json({ error: "AI processing failed" }, { status: 500 })
   }
 }
