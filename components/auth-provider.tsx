@@ -60,8 +60,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const isPublicPage = publicRoutes.includes(pathname)
 
       if (!user && !isPublicPage) {
-        router.replace("/")
+        // User is not authenticated and trying to access protected route
+        console.log("Redirecting unauthenticated user to login from:", pathname)
+        router.replace("/login")
       } else if (user && pathname === "/login") {
+        // User is authenticated but on login page, redirect to meetings
         router.replace("/meetings")
       }
     }

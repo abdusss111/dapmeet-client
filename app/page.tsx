@@ -31,12 +31,6 @@ export default function Home() {
           </object>
         </div>
 
-        {/* Title */}
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl mb-2">Dapmeet</h1>
-        </div>
-
-        {/* CTA */}
         <div className="flex flex-col items-center gap-2">
           <Button asChild size="lg" className="gap-2">
             <Link href="/login">

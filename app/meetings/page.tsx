@@ -1,122 +1,187 @@
 "use client"
 
-import { CardContent } from "@/components/ui/card"
-
-import { CardDescription } from "@/components/ui/card"
-
-import { CardTitle } from "@/components/ui/card"
-
-import { CardHeader } from "@/components/ui/card"
-
-import { Card } from "@/components/ui/card"
-
 import { useEffect, useState } from "react"
-import DashboardLayout from "@/components/dashboard-layout"
-import { MeetingCard } from "@/components/meeting-card" // 👈 create this if not yet
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { CalendarDays, Clock, Users, MessageSquare, Loader2 } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
 
-type Meeting = {
+interface Meeting {
   id: string
   title: string
-  created_at: Date
-  participants?: string[]
-  transcript?: string
+  date: string
+  duration: number
+  participants: number
+  status: "completed" | "processing" | "failed"
+  summary?: string
+  topics?: string[]
 }
 
 export default function MeetingsPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
   const [meetings, setMeetings] = useState<Meeting[]>([])
-  const [loading, setLoading] = useState(true)
+  const [isLoadingMeetings, setIsLoadingMeetings] = useState(true)
 
+  // Redirect to login if not authenticated
   useEffect(() => {
-    const fetchMeetings = async () => {
-      try {
-        const res = await fetch("https://api.dapmeet.kz/api/meetings/", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
-          },
-        })
-
-        if (!res.ok) throw new Error("Failed to fetch meetings")
-
-        const data = await res.json()
-        setMeetings(data)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
+    if (!loading && !user) {
+      router.push("/login")
+      return
     }
+  }, [user, loading, router])
 
-    fetchMeetings()
-  }, [])
+  // Fetch meetings when user is authenticated
+  useEffect(() => {
+    if (user) {
+      fetchMeetings()
+    }
+  }, [user])
 
-  return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Просмотр и управление встречами</h1>
-          </div>
-        </div>
+  const fetchMeetings = async () => {
+    try {
+      setIsLoadingMeetings(true)
+      const token = localStorage.getItem("APP_JWT")
 
-        <MeetingsList />
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meetings`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (response.status === 401) {
+        // Token expired or invalid, redirect to login
+        localStorage.removeItem("APP_JWT")
+        router.push("/login")
+        return
+      }
+
+      if (response.ok) {
+        const data = await response.json()
+        setMeetings(data.meetings || [])
+      } else {
+        console.error("Failed to fetch meetings:", response.statusText)
+      }
+    } catch (error) {
+      console.error("Error fetching meetings:", error)
+    } finally {
+      setIsLoadingMeetings(false)
+    }
+  }
+
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
-    </DashboardLayout>
-  )
-}
+    )
+  }
 
-function MeetingsList() {
-  const { meetings, loading } = useMeetingsContext()
+  // Don't render anything if user is not authenticated (will redirect)
+  if (!user) {
+    return null
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-100 text-green-800"
+      case "processing":
+        return "bg-yellow-100 text-yellow-800"
+      case "failed":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
 
   return (
-    <div className="space-y-4">
-      {loading ? (
-        <p className="text-muted-foreground">Загрузка встреч...</p>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Встречи</CardTitle>
-          </CardHeader>
+    <div className="container mx-auto p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Мои встречи</h1>
+        <p className="text-gray-600 mt-2">Просматривайте и анализируйте ваши встречи</p>
+      </div>
+
+      {isLoadingMeetings ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Загрузка встреч...</span>
+        </div>
+      ) : meetings.length === 0 ? (
+        <Card className="text-center py-12">
           <CardContent>
-            <div className="space-y-4">
-              {meetings.length === 0 ? (
-                <p className="text-muted-foreground">Нет встреч</p>
-              ) : (
-                meetings.map((meeting) => <MeetingCard key={meeting.id} meeting={meeting} />)
-              )}
-            </div>
+            <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Встреч пока нет</h3>
+            <p className="text-gray-600 mb-4">Установите расширение Chrome и начните записывать встречи</p>
+            <Button onClick={() => router.push("/instruction")}>Инструкция по установке</Button>
           </CardContent>
         </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {meetings.map((meeting) => (
+            <Card key={meeting.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-lg line-clamp-2">{meeting.title}</CardTitle>
+                  <Badge className={getStatusColor(meeting.status)}>
+                    {meeting.status === "completed" && "Завершено"}
+                    {meeting.status === "processing" && "Обработка"}
+                    {meeting.status === "failed" && "Ошибка"}
+                  </Badge>
+                </div>
+                <CardDescription className="flex items-center gap-4 text-sm">
+                  <span className="flex items-center gap-1">
+                    <CalendarDays className="h-4 w-4" />
+                    {formatDistanceToNow(new Date(meeting.date), { addSuffix: true })}
+                  </span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {Math.round(meeting.duration / 60)} мин
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    {meeting.participants} участников
+                  </span>
+                </div>
+
+                {meeting.summary && <p className="text-sm text-gray-700 line-clamp-3 mb-4">{meeting.summary}</p>}
+
+                {meeting.topics && meeting.topics.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {meeting.topics.slice(0, 3).map((topic, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {topic}
+                      </Badge>
+                    ))}
+                    {meeting.topics.length > 3 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{meeting.topics.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
+                <Button
+                  className="w-full mt-4 bg-transparent"
+                  variant="outline"
+                  onClick={() => router.push(`/meetings/${meeting.id}`)}
+                >
+                  Открыть встречу
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   )
-}
-
-function useMeetingsContext() {
-  const [meetings, setMeetings] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchMeetings = async () => {
-      try {
-        const res = await fetch("https://api.dapmeet.kz/api/meetings/", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("APP_JWT")}`,
-          },
-        })
-
-        if (!res.ok) throw new Error("Failed to fetch meetings")
-
-        const data = await res.json()
-        setMeetings(data)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchMeetings()
-  }, [])
-
-  return { meetings, loading }
 }
