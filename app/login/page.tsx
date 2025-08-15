@@ -15,18 +15,11 @@ declare global {
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/hooks/use-auth"
 import { Separator } from "@/components/ui/separator"
-import { useEffect } from "react"
+
 export default function LoginPage() {
   const { loginWithGoogle } = useAuth()
 
-  useEffect(() => {
-    const token = localStorage.getItem("APP_JWT")
-
-    if (token && window.opener) {
-      window.opener.postMessage({ token }, "https://dapmeet.kz")
-      window.close()
-    }
-  }, [])
+  // The AuthProvider already handles redirects for authenticated users
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">

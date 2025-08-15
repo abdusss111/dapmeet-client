@@ -39,19 +39,24 @@ export default function GoogleCallbackPage() {
         localStorage.setItem("APP_JWT", data.access_token)
         localStorage.setItem("dapter_user", JSON.stringify(data.user))
 
-        // Отправляем токен в расширение если это popup
-        const token = localStorage.getItem("APP_JWT")
-        if (token && window.opener) {
-          window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
-          window.close() // безопасно закрываем только если popup
-          return // Выходим, чтобы не делать редирект
+        // Only close window if it's actually a popup from browser extension
+        const isExtensionPopup = window.opener && window.name === "extension_popup"
+
+        if (isExtensionPopup) {
+          const token = localStorage.getItem("APP_JWT")
+          if (token) {
+            window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
+            window.close()
+            return
+          }
         }
 
         // Устанавливаем успешный статус перед редиректом
         setStatus("success")
 
-        // Немедленный редирект без задержки
-        window.location.href = "/meetings"
+        setTimeout(() => {
+          window.location.href = "/meetings"
+        }, 1000)
       } catch (err: any) {
         console.error("Ошибка авторизации:", err)
         setErrorMsg("Не удалось авторизоваться. Попробуйте снова.")
