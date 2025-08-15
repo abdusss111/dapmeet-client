@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const isPublicPage = publicRoutes.includes(pathname)
 
       if (!user && !isPublicPage) {
-        router.replace("/")
+        router.replace("/login")
       } else if (user && pathname === "/login") {
         router.replace("/meetings")
       }
