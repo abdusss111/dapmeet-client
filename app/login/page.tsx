@@ -1,13 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuth } from "@/hooks/use-auth"
-import { Separator } from "@/components/ui/separator"
-import { Loader2 } from "lucide-react"
 
 // Extend JSX.IntrinsicElements to include the 'object' element
 declare global {
@@ -17,12 +12,13 @@ declare global {
     }
   }
 }
-
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useAuth } from "@/hooks/use-auth"
+import { Separator } from "@/components/ui/separator"
+import { useEffect } from "react"
 export default function LoginPage() {
-  const { loginWithGoogle, user, loading } = useAuth()
-  const router = useRouter()
+  const { loginWithGoogle } = useAuth()
 
-  // Handle redirect from Chrome extension
   useEffect(() => {
     const token = localStorage.getItem("APP_JWT")
 
@@ -31,28 +27,6 @@ export default function LoginPage() {
       window.close()
     }
   }, [])
-
-  // Redirect to meetings if already authenticated
-  useEffect(() => {
-    if (!loading && user) {
-      router.push("/meetings")
-      return
-    }
-  }, [user, loading, router])
-
-  // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    )
-  }
-
-  // Don't render login form if user is authenticated (will redirect)
-  if (user) {
-    return null
-  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800">
