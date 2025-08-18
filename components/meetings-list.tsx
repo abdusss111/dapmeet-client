@@ -8,6 +8,7 @@ import { Calendar, Search, User } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
+import { createDemoMeeting } from "@/lib/demo-meeting"
 
 // Mock data for development
 const mockMeetings = [
@@ -36,13 +37,30 @@ const mockMeetings = [
 
 interface MeetingsListProps {
   filter?: "all" | "recent" | "upcoming"
+  realMeetings?: any[]
 }
 
-export default function MeetingsList({ filter = "all" }: MeetingsListProps) {
+export default function MeetingsList({ filter = "all", realMeetings }: MeetingsListProps) {
   const [searchQuery, setSearchQuery] = useState("")
 
+  let meetingsToShow = realMeetings !== undefined ? realMeetings : mockMeetings
+
+  if (realMeetings !== undefined && realMeetings.length === 0) {
+    const demoMeeting = createDemoMeeting()
+    meetingsToShow = [
+      {
+        id: demoMeeting.meeting_id,
+        title: demoMeeting.title,
+        date: demoMeeting.created_at,
+        participants: demoMeeting.speakers,
+        status: "completed",
+        isDemo: true,
+      },
+    ]
+  }
+
   // Filter meetings based on the filter prop
-  const filteredMeetings = mockMeetings.filter((meeting) => {
+  const filteredMeetings = meetingsToShow.filter((meeting) => {
     if (searchQuery && !meeting.title.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false
     }
@@ -79,6 +97,9 @@ export default function MeetingsList({ filter = "all" }: MeetingsListProps) {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div>
           <CardTitle>Встречи</CardTitle>
+          {realMeetings !== undefined && realMeetings.length === 0 && (
+            <p className="text-sm text-blue-600 mt-1">Демонстрационная встреча - показывает как работает сервис</p>
+          )}
         </div>
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -104,7 +125,14 @@ export default function MeetingsList({ filter = "all" }: MeetingsListProps) {
                 className="flex flex-col gap-3 rounded-lg border p-3 md:p-4 hover:shadow-md transition-shadow"
               >
                 <div className="space-y-2">
-                  <h3 className="font-medium text-sm md:text-base line-clamp-2">{meeting.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium text-sm md:text-base line-clamp-2">{meeting.title}</h3>
+                    {meeting.isDemo && (
+                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                        Демо
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-1 text-xs md:text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
