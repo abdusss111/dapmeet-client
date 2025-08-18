@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { MeetingHeader } from "@/components/meeting-header"
@@ -11,6 +11,7 @@ import { MeetingControls } from "@/components/meeting-controls"
 import { TranscriptView } from "@/components/transcript-view"
 import { AIChat } from "@/components/ai-chat"
 import type { Meeting } from "@/lib/types"
+import { DEMO_MEETING } from "@/lib/demo-meeting"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.dapmeet.kz"
 
@@ -31,6 +32,12 @@ export default function MeetingDetailPage() {
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
+        if (meetingId === DEMO_MEETING.meeting_id) {
+          setMeeting(DEMO_MEETING)
+          setLoading(false)
+          return
+        }
+
         const token = localStorage.getItem("APP_JWT")
         if (!token) {
           setError("Токен авторизации не найден")
@@ -156,11 +163,7 @@ export default function MeetingDetailPage() {
             onSpeakerToggle={handleSpeakerToggle}
           />
 
-          <AIChat
-            sessionId={meeting.meeting_id}
-            meetingTitle={meeting.title}
-            transcript={formatTranscript(meeting)}
-          />
+          <AIChat sessionId={meeting.meeting_id} meetingTitle={meeting.title} transcript={formatTranscript(meeting)} />
 
           <TranscriptView meeting={meeting} searchQuery={searchQuery} selectedSpeakers={selectedSpeakers} />
         </div>

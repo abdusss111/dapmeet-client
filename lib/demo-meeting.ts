@@ -314,3 +314,5 @@ export const createDemoMeeting = (): Meeting => {
     speakers: ["Анна Петрова", "Михаил Иванов", "Елена Сидорова", "Дмитрий Козлов"],
   }
 }
+
+export const DEMO_MEETING = createDemoMeeting()
