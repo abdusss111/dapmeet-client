@@ -39,18 +39,6 @@ export default function GoogleCallbackPage() {
         localStorage.setItem("APP_JWT", data.access_token)
         localStorage.setItem("dapter_user", JSON.stringify(data.user))
 
-        // Only close window if it's actually a popup from browser extension
-        const isExtensionPopup = window.opener && window.name === "extension_popup"
-
-        if (isExtensionPopup) {
-          const token = localStorage.getItem("APP_JWT")
-          if (token) {
-            window.opener.postMessage({ token }, "chrome-extension://liphcklmjpciifdofjfhhoibflpocpnc")
-            window.close()
-            return
-          }
-        }
-
         // Устанавливаем успешный статус перед редиректом
         setStatus("success")
 
