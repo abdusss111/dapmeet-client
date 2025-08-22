@@ -28,6 +28,28 @@ interface ChatHistoryResponse {
   messages: ChatMessage[]
 }
 
+const extractSpeakersFromTranscript = (transcript: string): string => {
+  const speakerMatches = transcript.match(/\d{2}:\d{2}:\d{2}, ([^:]+):/g)
+  if (!speakerMatches) return "Не определены"
+
+  const speakers = [...new Set(speakerMatches.map((match) => match.split(", ")[1].replace(":", "")))]
+  return speakers.join(", ")
+}
+
+const calculateMeetingDuration = (transcript: string): string => {
+  const timeMatches = transcript.match(/\d{2}:\d{2}:\d{2}/g)
+  if (!timeMatches || timeMatches.length < 2) return "Не определена"
+
+  const startTime = timeMatches[0]
+  const endTime = timeMatches[timeMatches.length - 1]
+
+  const start = new Date(`1970-01-01T${startTime}`)
+  const end = new Date(`1970-01-01T${endTime}`)
+  const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60))
+
+  return `${duration} минут`
+}
+
 export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([])
@@ -127,14 +149,25 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     await saveMessage("user", messageToSave)
 
     try {
+      const meetingContext = `
+Информация о встрече:
+- Название: ${meetingTitle}
+- Дата и время: ${new Date().toLocaleDateString("ru-RU")} ${new Date().toLocaleTimeString("ru-RU")}
+- Участники: ${extractSpeakersFromTranscript(transcript)}
+- Продолжительность: ${calculateMeetingDuration(transcript)}
+
+Транскрипт встречи:
+${transcript}
+      `.trim()
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          prompt: messageToSend, // Send full prompt to API
-          context: transcript,
+          prompt: messageToSend,
+          context: meetingContext, // Using enhanced context instead of just transcript
         }),
       })
 
