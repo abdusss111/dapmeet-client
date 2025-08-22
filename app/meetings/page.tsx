@@ -10,6 +10,7 @@ import DashboardLayout from "@/components/dashboard-layout"
 import { MeetingCard } from "@/components/meeting-card"
 import { createDemoMeeting } from "@/lib/demo-meeting"
 import type { Meeting } from "@/lib/types"
+import Link from "next/link"
 
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([])
@@ -44,6 +45,12 @@ export default function MeetingsPage() {
         <div className="flex flex-col md:flex-row justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Просмотр и управление встречами</h1>
+            <p className="text-muted-foreground mt-2">
+              Для работы с сервисом нужно установить расширение на компьютер,{" "}
+              <Link href="/instruction" className="text-blue-600 hover:text-blue-800 underline">
+                установите по этой ссылке
+              </Link>
+            </p>
           </div>
         </div>
 
