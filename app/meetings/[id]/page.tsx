@@ -163,7 +163,13 @@ export default function MeetingDetailPage() {
             onSpeakerToggle={handleSpeakerToggle}
           />
 
-          <AIChat sessionId={meeting.meeting_id} meetingTitle={meeting.title} transcript={formatTranscript(meeting)} />
+          <AIChat
+            sessionId={meeting.meeting_id}
+            meetingTitle={meeting.title}
+            meetingCreatedAt={meeting.created_at}
+            speakers={meeting.speakers || []}
+            transcript={formatTranscript(meeting)}
+          />
 
           <TranscriptView meeting={meeting} searchQuery={searchQuery} selectedSpeakers={selectedSpeakers} />
         </div>

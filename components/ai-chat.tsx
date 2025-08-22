@@ -11,6 +11,8 @@ import remarkGfm from "remark-gfm"
 interface AIChatProps {
   sessionId: string
   meetingTitle: string
+  meetingCreatedAt: string
+  speakers: string[]
   transcript: string
 }
 
@@ -28,14 +30,6 @@ interface ChatHistoryResponse {
   messages: ChatMessage[]
 }
 
-const extractSpeakersFromTranscript = (transcript: string): string => {
-  const speakerMatches = transcript.match(/\d{2}:\d{2}:\d{2}, ([^:]+):/g)
-  if (!speakerMatches) return "Не определены"
-
-  const speakers = [...new Set(speakerMatches.map((match) => match.split(", ")[1].replace(":", "")))]
-  return speakers.join(", ")
-}
-
 const calculateMeetingDuration = (transcript: string): string => {
   const timeMatches = transcript.match(/\d{2}:\d{2}:\d{2}/g)
   if (!timeMatches || timeMatches.length < 2) return "Не определена"
@@ -50,7 +44,7 @@ const calculateMeetingDuration = (transcript: string): string => {
   return `${duration} минут`
 }
 
-export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
+export function AIChat({ sessionId, meetingTitle, meetingCreatedAt, speakers, transcript }: AIChatProps) {
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -59,7 +53,6 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
-  // Auto scroll to bottom of chat container
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
@@ -70,9 +63,6 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     scrollToBottom()
   }, [messages])
 
-  // Remove this entire function
-
-  // Load chat history on component mount
   useEffect(() => {
     const loadChatHistory = async () => {
       try {
@@ -145,15 +135,14 @@ export function AIChat({ sessionId, meetingTitle, transcript }: AIChatProps) {
     setMessages((prev) => [...prev, { role: "user", content: messageToDisplay }])
     setIsLoading(true)
 
-    // Save user message (display version for history)
     await saveMessage("user", messageToSave)
 
     try {
       const meetingContext = `
 Информация о встрече:
 - Название: ${meetingTitle}
-- Дата и время: ${new Date().toLocaleDateString("ru-RU")} ${new Date().toLocaleTimeString("ru-RU")}
-- Участники: ${extractSpeakersFromTranscript(transcript)}
+- Дата и время: ${new Date(meetingCreatedAt).toLocaleDateString("ru-RU")} ${new Date(meetingCreatedAt).toLocaleTimeString("ru-RU")}
+- Участники: ${speakers.length > 0 ? speakers.join(", ") : "Не определены"}
 - Продолжительность: ${calculateMeetingDuration(transcript)}
 
 Транскрипт встречи:
@@ -167,7 +156,7 @@ ${transcript}
         },
         body: JSON.stringify({
           prompt: messageToSend,
-          context: meetingContext, // Using enhanced context instead of just transcript
+          context: meetingContext,
         }),
       })
 
@@ -178,14 +167,12 @@ ${transcript}
 
       setMessages((prev) => [...prev, { role: "assistant", content: assistantMessage }])
 
-      // Save assistant message
       await saveMessage("ai", assistantMessage)
     } catch (error) {
       console.error("Error sending message:", error)
       const errorMessage = "Извините, произошла ошибка при обработке вашего запроса."
       setMessages((prev) => [...prev, { role: "assistant", content: errorMessage }])
 
-      // Save error message
       await saveMessage("ai", errorMessage)
     } finally {
       setIsLoading(false)
@@ -295,7 +282,6 @@ ${transcript}
                     msg.role === "user" ? "bg-blue-600 text-white" : "bg-white border border-gray-200"
                   }`}
                 >
-                  {/* Copy button */}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -356,7 +342,6 @@ ${transcript}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick Prompt Buttons */}
         <div
           className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border border-blue-200"
           style={{ backgroundColor: "rgba(7, 65, 210, 0.05)" }}
