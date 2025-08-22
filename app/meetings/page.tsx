@@ -48,7 +48,7 @@ export default function MeetingsPage() {
             <p className="text-muted-foreground mt-2">
               Для работы с сервисом нужно установить расширение на компьютер,{" "}
               <Link href="/instruction" className="text-blue-600 hover:text-blue-800 underline">
-                установите по этой ссылке
+                инструкция
               </Link>
             </p>
           </div>
