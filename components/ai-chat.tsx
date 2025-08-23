@@ -179,10 +179,39 @@ ${transcript}
     }
   }
 
-  const handleQuickPrompt = (promptType: "brief" | "detailed") => {
-    const prompts = {
-      brief: {
-        full: `Сделай краткое официальное резюме онлайн-встречи. Включи следующие элементы:
+  const handleQuickPrompt = async (promptType: "brief" | "detailed") => {
+    const promptNames = {
+      brief: "brief-resume",
+      detailed: "detailed-resume",
+    }
+
+    try {
+      const token = localStorage.getItem("APP_JWT")
+      if (!token) {
+        console.error("No auth token found")
+        return
+      }
+
+      const response = await fetch(`https://api.dapmeet.kz/api/prompts/by-name/${promptNames[promptType]}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch prompt")
+      }
+
+      const promptData = await response.json()
+      const promptContent = promptData.content
+      const displayName = promptType === "brief" ? "Краткое резюме и следующие действия" : "Подробное резюме"
+
+      handleSend(promptContent, displayName)
+    } catch (error) {
+      console.error("Error fetching prompt:", error)
+      const prompts = {
+        brief: {
+          full: `Сделай краткое официальное резюме онлайн-встречи. Включи следующие элементы:
 
         Цель встречи и основные обсуждённые темы — сформулируй сжато, но по существу.
 
@@ -197,10 +226,10 @@ ${transcript}
         Стиль оформления — официальный, важные моменты выделяй жирным шрифтом.
 
         Краткое резюме и действия`,
-        display: "Краткое резюме и следующие действия",
-      },
-      detailed: {
-        full: `Создай подробное официальное резюме внутренней командной онлайн-встречи. Включи следующие структурированные блоки:
+          display: "Краткое резюме и следующие действия",
+        },
+        detailed: {
+          full: `Создай подробное официальное резюме внутренней командной онлайн-встречи. Включи следующие структурированные блоки:
 
         Контекст и повестка встречи — 1–2 предложения с описанием цели встречи и ключевых тем обсуждения.
 
@@ -215,12 +244,13 @@ ${transcript}
         Дата следующей встречи — если согласована.
 
         Весь текст должен быть официальным по стилю. Ключевые детали и важные моменты выделяй жирным шрифтом для акцента.`,
-        display: "Подробное резюме",
-      },
-    }
+          display: "Подробное резюме",
+        },
+      }
 
-    const selectedPrompt = prompts[promptType]
-    handleSend(selectedPrompt.full, selectedPrompt.display)
+      const selectedPrompt = prompts[promptType]
+      handleSend(selectedPrompt.full, selectedPrompt.display)
+    }
   }
 
   const handleCopyMessage = async (content: string, index: number) => {
@@ -368,6 +398,17 @@ ${transcript}
             >
               <BookOpen className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
               <span className="truncate">Подробное резюме</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open("/prompts/create", "_blank")}
+              disabled={isLoading}
+              className="flex-1 justify-start gap-1 md:gap-2 bg-white hover:bg-green-50 border-green-200 transition-all duration-200 text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2"
+              style={{ color: "rgb(34, 197, 94)" }}
+            >
+              <span className="text-lg leading-none">+</span>
+              <span className="truncate">Создать свою кнопку</span>
             </Button>
           </div>
         </div>
