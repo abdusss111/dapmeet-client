@@ -122,8 +122,7 @@ export function AIChat({ sessionId, meetingTitle, meetingCreatedAt, speakers, tr
 
         if (response.ok) {
           const data = await response.json()
-          // Filter out the default prompts and only show active custom prompts
-          const filteredPrompts = data.filter(
+          const filteredPrompts = data.prompts.filter(
             (prompt: CustomPrompt) =>
               prompt.is_active && prompt.name !== "brief-resume" && prompt.name !== "detailed-resume",
           )
