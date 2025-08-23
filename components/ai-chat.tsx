@@ -30,6 +30,13 @@ interface ChatHistoryResponse {
   messages: ChatMessage[]
 }
 
+interface CustomPrompt {
+  id: number
+  name: string
+  content: string
+  is_active: boolean
+}
+
 const calculateMeetingDuration = (transcript: string): string => {
   const timeMatches = transcript.match(/\d{2}:\d{2}:\d{2}/g)
   if (!timeMatches || timeMatches.length < 2) return "Не определена"
@@ -50,6 +57,8 @@ export function AIChat({ sessionId, meetingTitle, meetingCreatedAt, speakers, tr
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
   const [copySuccess, setCopySuccess] = useState<number | null>(null)
+  const [customPrompts, setCustomPrompts] = useState<CustomPrompt[]>([])
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
@@ -95,6 +104,40 @@ export function AIChat({ sessionId, meetingTitle, meetingCreatedAt, speakers, tr
 
     loadChatHistory()
   }, [sessionId])
+
+  useEffect(() => {
+    const loadCustomPrompts = async () => {
+      try {
+        const token = localStorage.getItem("APP_JWT")
+        if (!token) {
+          setIsLoadingPrompts(false)
+          return
+        }
+
+        const response = await fetch("https://api.dapmeet.kz/api/prompts/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          // Filter out the default prompts and only show active custom prompts
+          const filteredPrompts = data.filter(
+            (prompt: CustomPrompt) =>
+              prompt.is_active && prompt.name !== "brief-resume" && prompt.name !== "detailed-resume",
+          )
+          setCustomPrompts(filteredPrompts)
+        }
+      } catch (error) {
+        console.error("Error loading custom prompts:", error)
+      } finally {
+        setIsLoadingPrompts(false)
+      }
+    }
+
+    loadCustomPrompts()
+  }, [])
 
   const saveMessage = async (sender: "user" | "ai", content: string) => {
     try {
@@ -253,6 +296,10 @@ ${transcript}
     }
   }
 
+  const handleCustomPrompt = async (prompt: CustomPrompt) => {
+    handleSend(prompt.content, prompt.name)
+  }
+
   const handleCopyMessage = async (content: string, index: number) => {
     try {
       const textToCopy = `${content}\n\nСоздано на dapmeet.kz`
@@ -373,10 +420,10 @@ ${transcript}
         </div>
 
         <div
-          className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border border-blue-200"
+          className="flex flex-col gap-2 p-3 rounded-lg border border-blue-200"
           style={{ backgroundColor: "rgba(7, 65, 210, 0.05)" }}
         >
-          <div className="flex flex-col sm:flex-row gap-2 flex-1">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -411,6 +458,24 @@ ${transcript}
               <span className="truncate">Создать свою кнопку</span>
             </Button>
           </div>
+
+          {!isLoadingPrompts && customPrompts.length > 0 && (
+            <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
+              {customPrompts.map((prompt) => (
+                <Button
+                  key={prompt.id}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCustomPrompt(prompt)}
+                  disabled={isLoading}
+                  className="flex-1 justify-start gap-1 md:gap-2 bg-white hover:bg-purple-50 border-purple-200 transition-all duration-200 text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2"
+                  style={{ color: "rgb(147, 51, 234)" }}
+                >
+                  <span className="truncate">{prompt.name}</span>
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2">
