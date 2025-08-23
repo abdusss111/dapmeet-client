@@ -192,7 +192,7 @@ ${transcript}
         return
       }
 
-      const response = await fetch(`/api/prompts/by-name/${promptNames[promptType]}`, {
+      const response = await fetch(`https://api.dapmeet.kz/api/prompts/by-name/${promptNames[promptType]}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
