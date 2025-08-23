@@ -37,7 +37,7 @@ export default function CreatePromptPage() {
         return
       }
 
-      const response = await fetch("https://api.dapmeet.kz/api/prompts", {
+      const response = await fetch("/api/prompts", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
